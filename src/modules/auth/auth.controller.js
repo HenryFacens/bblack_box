@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
-const { User } = require('../../models/user');
+const { User } = require('../../models');
 
 const secretKey = process.env.JWT_SECRET || 'sua_chave_secreta';
 
