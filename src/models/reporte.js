@@ -58,5 +58,12 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true
     });
 
+    Reporte.associate = (models) => {
+        Reporte.hasMany(models.ComentarioReporte, {
+            foreignKey: 'reporteId',
+            as: 'comentarios'
+        });
+    };
+
     return Reporte;
 };

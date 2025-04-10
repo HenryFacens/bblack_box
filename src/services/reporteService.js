@@ -1,4 +1,4 @@
-const { Reporte } = require('../models');
+const { Reporte, ComentarioReporte } = require('../models');
 const { Sequelize } = require('sequelize');
 
 async function getLikesandDislikes(){
@@ -24,9 +24,16 @@ async function getLikesandDislikes(){
                             AND interacoes."tipo" = 'dislike'
                     )`),
                     'dislikes'
-                ]
+                ],
             ]
-        }
+        },
+        include: [
+            {
+                model: ComentarioReporte,
+                as: 'comentarios', // ou o alias que você configurou no `associate` do model
+                attributes: ['id', 'comentario', 'userId', 'createdAt'], // escolha os campos desejados
+            }
+        ]
     });
 }
 
