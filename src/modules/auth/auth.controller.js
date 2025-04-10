@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const https = require('https');
 const axios = require('axios');
 const agent = new https.Agent({ family: 4 });
+const fs = require('fs');
+const path = require('path');
 const { User } = require('../../models');
 
 const secretKey = process.env.JWT_SECRET || 'sua_chave_secreta';
@@ -28,6 +30,12 @@ async function register(req, res) {
       }
     }
 
+    // Sorteia uma imagem da pasta 'static/fotosPerfil/'
+    const fotosPerfilDir = path.join(__dirname, '..', '..', 'static', 'fotosPerfil');
+    const fotos = fs.readdirSync(fotosPerfilDir);
+    const fotosSorted = fotos[Math.floor(Math.random() * fotos.length)];
+    const fotoPerfil = path.join(fotosPerfilDir, fotosSorted);
+
     // Criar o usuário no banco de dados
     const user = await User.create({
       nome,
@@ -40,7 +48,8 @@ async function register(req, res) {
       address,
       bairro,
       localidade,
-      uf
+      uf,
+      fotoPerfil
     });
 
     return res.status(201).json(user);
