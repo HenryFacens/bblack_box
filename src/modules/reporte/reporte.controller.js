@@ -61,7 +61,7 @@ exports.createReporte = async (req, res) =>{
     }
 }
 
-exports.getReportes = async (req, res) => {
+    exports.getReportes = async (req, res) => {
     try {
         // Pegar token do cabeçalho da requisição
         const token = req.header('Authorization')?.replace('Bearer ', '');

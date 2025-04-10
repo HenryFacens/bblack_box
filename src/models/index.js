@@ -4,6 +4,7 @@ const User = require('./user')(sequelize, DataTypes);
 const Reporte = require('./reporte')(sequelize, DataTypes);
 const Categoria = require('./categoria')(sequelize, DataTypes);
 const Status = require('./status')(sequelize, DataTypes);
+const InteracoesReporte = require('./interacoesReporte')(sequelize, DataTypes);
 
 module.exports = {
     sequelize,
@@ -11,4 +12,5 @@ module.exports = {
     Reporte,
     Categoria,
     Status,
+    InteracoesReporte,
   };
