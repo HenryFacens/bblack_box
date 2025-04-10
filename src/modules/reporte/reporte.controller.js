@@ -1,7 +1,6 @@
-const { Reporte, Categoria, Status } = require('../../models');
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
-const path = require('path');
+const { Reporte, Categoria, Status, InteracoesReporte } = require('../../models');
+const reporteService = require('../../services/reporteService');
 
 exports.createReporte = async (req, res) =>{
     try {
@@ -61,7 +60,7 @@ exports.createReporte = async (req, res) =>{
     }
 }
 
-    exports.getReportes = async (req, res) => {
+exports.getReportes = async (req, res) => {
     try {
         // Pegar token do cabeçalho da requisição
         const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -72,7 +71,8 @@ exports.createReporte = async (req, res) =>{
         jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
 
         // Buscar todos os reportes na tabela
-        const reportes = await Reporte.findAll();
+        //const reportes = await Reporte.findAll();
+        const reportes = await reporteService.getLikesandDislikes();
 
         return res.status(200).json({
             data: reportes
@@ -122,5 +122,55 @@ exports.avaliacaoReporte = async (req, res) => {
     } catch (error) {
         console.error('Erro ao listar reportes: ', error);
         return res.status(500).json({ message: 'Erro interno do servidor.' })
+    }
+}
+
+exports.interagirReporte = async (req, res) =>{
+    try{
+        // Pegar token do cabeçalho da requisição
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({ message: 'Token não fornecido' });
+        }
+        // Verificar e decodificar o token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const userId = decoded.id;
+
+        const { reporteId, } = req.params;
+        const { tipo } = req.body; // like ou dislike
+
+        if (!['like', 'dislike'].includes(tipo)){
+            return res.status(400).json({ message: 'Tipo inválido.' });
+        }
+
+        const existing = await InteracoesReporte.findOne({
+            where: { userId, reporteId }
+        });
+
+        let responseMessage = '';
+        let interacao = null;
+
+        if (!existing) {
+            // nenhuma interação anterior, cria
+            interacao = await InteracoesReporte.create({ userId, reporteId, tipo });
+            responseMessage = `Interação '${tipo}' criada com sucesso.`;
+        } else if (existing.tipo === tipo) {
+            // mesmo tipo, remove interação
+            await existing.destroy();
+            responseMessage = `Interação '${tipo}' removida com sucesso.`;
+        } else {
+            // Tipo diferente — atualiza para o novo tipo
+            await existing.update({ tipo });
+            interacao = existing;
+            responseMessage = `Interação atualizada de '${existing.tipo}' para '${tipo}'.`;
+        }
+
+        res.status(200).json({
+            message: responseMessage,
+            data: interacao
+        });
+    } catch (err) {
+        console.error('Erro na interação:', err);
+        res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 }

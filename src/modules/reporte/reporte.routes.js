@@ -102,4 +102,42 @@ router.get('/get', reporteController.getReportes);
  */
 router.put('/update', reporteController.avaliacaoReporte);
 
+/**
+ * @swagger
+ * /api/reporte/{reporteId}/interagir:
+ *   post:
+ *     tags:
+ *       - Reporte
+ *     summary: Interagir com um reporte
+ *     description: Permite que um usuário dê like ou dislike em um reporte. Um usuário só pode interagir uma vez por reporte, mas pode atualizar sua interação.
+ *     parameters:
+ *       - name: reporteId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - tipo
+ *             properties:
+ *               tipo:
+ *                 type: string
+ *                 enum: [like, dislike]
+ *     responses:
+ *       200:
+ *         description: Interação criada ou atualizada com sucesso
+ *       400:
+ *         description: Tipo de interação inválido
+ *       401:
+ *         description: Token JWT ausente ou inválido
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.post('/:reporteId/interagir', reporteController.interagirReporte);
+
 module.exports = router;
