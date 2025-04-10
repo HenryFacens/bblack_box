@@ -2,8 +2,6 @@ const jwt = require('jsonwebtoken');
 
 const { Categoria } = require('../../models');
 
-const secretKey = process.env.JWT_SECRET || 'sua_chave_secreta';
-
 exports.listCategorias = async (req, res) => {
     try {
         // Pegar o token do cabeçalho da requisição
