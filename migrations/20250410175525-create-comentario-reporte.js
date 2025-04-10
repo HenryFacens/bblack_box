@@ -21,7 +21,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       comentario: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false
       },
       createdAt: Sequelize.DATE,
