@@ -1,8 +1,7 @@
-const { Reporte } = require('../../models');
+const { Reporte, Categoria, Status } = require('../../models');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
-const { parseAndReverseGeocode } = require('../scripts/geocode');
 
 exports.createReporte = async (req, res) =>{
     try {
@@ -16,15 +15,21 @@ exports.createReporte = async (req, res) =>{
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
         const nomePerfil = decoded.nome;
 
-        let { descricaoReporte, localizacaoReporte } = req.body;
-        let enderecoCompleto;
+        const { descricaoReporte, localizacaoReporte, categoriasReporte, statusReporte } = req.body;
 
-        try {
-            const resultado = await parseAndReverseGeocode(localizacaoReporte);
-            enderecoCompleto = resultado.endereco;
-        } catch (err) {
-            const statusCode = err.code || 500;
-            return res.status(statusCode).json({ message: err.message });
+        const categoriaExistente = await Categoria.findOne({
+            where: { categoriasReporte: categoriasReporte }
+        });
+        if (!categoriaExistente) {
+            return res.status(400).json({ message: 'Categoria não encontrada.' });
+        }
+
+        // Verificar se o status existe
+        const statusExistente = await Status.findOne({
+            where: { statusReporte }
+        });
+        if (!statusExistente) {
+            return res.status(400).json({ message: 'Status não encontrado.' });
         }
 
         // Pegar imagem do reporte enviada
@@ -43,10 +48,12 @@ exports.createReporte = async (req, res) =>{
             fotoPerfil,
             nomePerfil,
             horarioReporte,
-            localizacaoReporte: enderecoCompleto,
+            localizacaoReporte,
             descricaoReporte,
             imagemReporte,
-            avaliacaoReporte
+            avaliacaoReporte,
+            categoriaReporte: categoriasReporte,
+            statusReporte
         });
 
         return res.status(201).json({

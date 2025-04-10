@@ -13,9 +13,17 @@ exports.listCategorias = async (req, res) => {
         // Verificar e decodificar o token
         jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
         
-        const categorias = await Categoria.findAll();
+        const categorias = await Categoria.findAll({
+            attributes: ['categoriasReporte']
+        });
+
+        if (!categorias) {
+            return res.status(404).json({ message: 'Categorias não encontradas' });
+        }
+
+        const categoriasList = categorias.map(item => item.categoriasReporte);
         return res.status(200).json({
-            data: categorias
+            data: categoriasList
         });
 
     } catch (error) {

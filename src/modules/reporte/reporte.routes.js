@@ -28,6 +28,8 @@ const upload = require('../../middleware/upload')
  *               - descricaoReporte
  *               - imagemReporte
  *               - localizacaoReporte
+ *               - categoriasReporte
+ *               - statusReporte
  *             properties:
  *               descricaoReporte:
  *                 type: string
@@ -38,6 +40,10 @@ const upload = require('../../middleware/upload')
  *                 items:
  *                   type: string
  *                   format: binary
+ *               categoriasReporte:
+ *                 type: string
+ *               statusReporte:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Reporte criado com sucesso
