@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Reporte, Categoria, Status, InteracoesReporte } = require('../../models');
+const { Reporte, Categoria, Status, InteracoesReporte, ComentarioReporte } = require('../../models');
 const reporteService = require('../../services/reporteService');
 
 exports.createReporte = async (req, res) =>{
@@ -171,6 +171,40 @@ exports.interagirReporte = async (req, res) =>{
         });
     } catch (err) {
         console.error('Erro na interação:', err);
+        res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+}
+
+exports.comentarioReporte = async (req, res) => {
+    try {
+        // Pegar token do cabeçalho da requisição
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({ message: 'Token não fornecido' });
+        }
+        // Verificar e decodificar o token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const userId = decoded.id;
+
+        const { reporteId, } = req.params;
+        const { comentario } = req.body;
+
+        await ComentarioReporte.create({
+            comentario,
+            userId,
+            reporteId
+        });
+
+        res.status(200).json({
+            message: 'Comentário criado com sucesso',
+            data: {
+                comentario,
+                userId,
+                reporteId
+            }
+        });
+    } catch (err) {
+        console.error('Erro na criação de comentário:', err);
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 }

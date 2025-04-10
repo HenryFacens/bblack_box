@@ -5,6 +5,7 @@ const Reporte = require('./reporte')(sequelize, DataTypes);
 const Categoria = require('./categoria')(sequelize, DataTypes);
 const Status = require('./status')(sequelize, DataTypes);
 const InteracoesReporte = require('./interacoesReporte')(sequelize, DataTypes);
+const ComentarioReporte = require('./comentarioReporte')(sequelize, DataTypes);
 
 module.exports = {
     sequelize,
@@ -13,4 +14,5 @@ module.exports = {
     Categoria,
     Status,
     InteracoesReporte,
+    ComentarioReporte,
   };

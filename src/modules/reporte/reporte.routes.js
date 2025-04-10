@@ -140,4 +140,39 @@ router.put('/update', reporteController.avaliacaoReporte);
  */
 router.post('/:reporteId/interagir', reporteController.interagirReporte);
 
+/**
+ * @swagger
+ * /api/reporte/{reporteId}/comentario:
+ *   post:
+ *     tags:
+ *       - Reporte
+ *     summary: Criar comentário
+ *     description: Permite que um usuário  comente em um reporte. Um usuário só pode comentar uma vez por reporte.
+ *     parameters:
+ *       - name: reporteId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - comentario
+ *             properties:
+ *               comentario:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Comentário criado ou atualizado com sucesso
+ *       401:
+ *         description: Token JWT ausente ou inválido
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.post('/:reporteId/comentario', reporteController.comentarioReporte);
+
 module.exports = router;
