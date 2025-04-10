@@ -48,6 +48,11 @@ module.exports = (sequelize, DataTypes) => {
     uf: { // Estado
       type: DataTypes.STRING,
       allowNull: true
+    },
+    fotoPerfil: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
     }
   }, {
     tableName: 'users',
