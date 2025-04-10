@@ -14,6 +14,7 @@ exports.createReporte = async (req, res) =>{
         // Verificar e decodificar o token
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
         const nomePerfil = decoded.nome;
+        const fotoPerfil = decoded.fotoPerfil;
 
         const { descricaoReporte, localizacaoReporte, categoriasReporte, statusReporte } = req.body;
 
@@ -34,12 +35,6 @@ exports.createReporte = async (req, res) =>{
 
         // Pegar imagem do reporte enviada
         const imagemReporte = req.files.imagemReporte[0].path;
-
-        // Sorteia uma imagem da pasta 'static/fotosPerfil/'
-        const fotosPerfilDir = path.join(__dirname, '..', '..', 'static', 'fotosPerfil');
-        const fotos = fs.readdirSync(fotosPerfilDir);
-        const fotosSorted = fotos[Math.floor(Math.random() * fotos.length)];
-        const fotoPerfil = path.join(fotosPerfilDir, fotosSorted);
 
         const horarioReporte = new Date();
         const avaliacaoReporte = null;
