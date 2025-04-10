@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         fotoPerfil: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true
+            unique: false
         },
         nomePerfil: {
             type: DataTypes.STRING,
