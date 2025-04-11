@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     expiracao: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    usado: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     tableName: 'link_compartilhado',
