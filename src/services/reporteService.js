@@ -1,4 +1,4 @@
-const { Reporte, ComentarioReporte } = require('../models');
+const { Reporte, ComentarioReporte, Status } = require('../models');
 const { Sequelize } = require('sequelize');
 
 async function getLikesandDislikes(){

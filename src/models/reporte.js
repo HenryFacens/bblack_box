@@ -52,6 +52,10 @@ module.exports = (sequelize, DataTypes) => {
         statusReporte: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
         }
     }, {
         tableName: 'reporte',
@@ -62,6 +66,10 @@ module.exports = (sequelize, DataTypes) => {
         Reporte.hasMany(models.ComentarioReporte, {
             foreignKey: 'reporteId',
             as: 'comentarios'
+        });
+        Reporte.belongsTo(models.User, {
+            foreignKey: 'userId',
+            as: 'usuario'
         });
     };
 

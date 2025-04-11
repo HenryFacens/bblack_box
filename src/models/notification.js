@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      reportId: {
+      reporteId: {
         type: DataTypes.INTEGER,
         allowNull: false
       },
@@ -14,8 +14,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      // marcar se a notificação foi lida ou não
       read: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.BOOLEAN, 
         allowNull: false,
         defaultValue: false
       }
@@ -30,9 +31,9 @@ module.exports = (sequelize, DataTypes) => {
         as: 'user'
       });
   
-      Notification.belongsTo(models.Report, {
-        foreignKey: 'reportId',
-        as: 'report'
+      Notification.belongsTo(models.Reporte, {
+        foreignKey: 'reporteId',
+        as: 'reporte'
       });
     };
   

@@ -14,6 +14,7 @@ exports.createReporte = async (req, res) =>{
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
         const nomePerfil = decoded.nome;
         const fotoPerfil = decoded.fotoPerfil;
+        const userId = decoded.id;
 
         const { descricaoReporte, localizacaoReporte, categoriasReporte, statusReporte } = req.body;
 
@@ -47,7 +48,8 @@ exports.createReporte = async (req, res) =>{
             imagemReporte,
             avaliacaoReporte,
             categoriaReporte: categoriasReporte,
-            statusReporte
+            statusReporte,
+            userId
         });
 
         return res.status(201).json({
