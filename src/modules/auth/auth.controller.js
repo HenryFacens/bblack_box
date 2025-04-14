@@ -5,14 +5,14 @@ const axios = require('axios');
 const agent = new https.Agent({ family: 4 });
 const fs = require('fs');
 const path = require('path');
-const { User } = require('../../models');
+const { User, RefreshToken } = require('../../models'); // Importando modelos de User e RefreshToken
+const { generateRefreshToken, generateAccessToken, createRefreshToken, removeRefreshToken } = require('../../services/tokenService');
 const { verifyToken } = require('../../services/authService');
-
-const secretKey = process.env.JWT_SECRET || 'sua_chave_secreta';
 
 async function register(req, res) {
   try {
-    const { nome, email, senha, role, birthdate, cpf, cep } = req.body;
+    const { nome, email, senha, birthdate, cpf, cep } = req.body;
+    const role = 'user';
 
     let address = null, bairro = null, localidade = null, uf = null;
     const salt = await bcrypt.genSalt(10);
@@ -53,7 +53,14 @@ async function register(req, res) {
       fotoPerfil
     });
 
-    return res.status(201).json(user);
+    // Gerar o token de acesso e o refresh token
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    // Salvar o refresh token na base de dados
+    await createRefreshToken(user.id, refreshToken);
+
+    return res.status(201).json({ accessToken, refreshToken });
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao cadastrar usuário', details: error.errors ? error.errors.map(err => err.message) : error.message  });
   }
@@ -68,13 +75,15 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(senha, user.senha);
     if (!isMatch) return res.status(400).json({ message: 'Credenciais inválidas' });
 
-    const token = jwt.sign(
-      { id: user.id, role: user.role, nome: user.nome, fotoPerfil: user.fotoPerfil },
-      secretKey,
-      { expiresIn: '1h' }
-    );
+    // Gerar o token de acesso e o refresh token
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    res.json({ token });
+    // Armazenar o refresh token na base de dados (remover qualquer refresh token anterior)
+    await removeRefreshToken(refreshToken); // Remove um refresh token antigo, se houver
+    await createRefreshToken(user.id, refreshToken); // Cria um novo refresh token
+
+    res.json({ accessToken, refreshToken });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -82,6 +91,7 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
+    // Verificar e decodificar o token de acesso da requisição
     const decoded = verifyToken(req);
 
     // Buscar o usuário pelo ID do token
@@ -91,11 +101,19 @@ exports.logout = async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
+    // Buscar o refresh token associado ao usuário no banco de dados
+    const refreshToken = await RefreshToken.findOne({ where: { userId: user.id } });
+
+    if (refreshToken) {
+      // Se o refresh token existir, removê-lo do banco de dados
+      await removeRefreshToken(refreshToken.token); // Método para remover o refresh token
+    }
+
+    // Responder com uma mensagem de sucesso
     return res.status(200).json({ message: `Logout realizado com sucesso por ${user.nome}` });
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao fazer logout', details: error.message });
   }
 };
-
 
 exports.register = register;
