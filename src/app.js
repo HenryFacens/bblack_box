@@ -24,6 +24,7 @@ const reporteRoutes = require('./modules/reporte/reporte.routes');
 const categoriaRoutes = require('./modules/categoria/categoria.routes');
 const statusRoutes = require('./modules/status/status.routes');
 const linkRoutes = require('./modules/link/link.routes');
+const notificationRoutes = require('./modules/notification/notification.routes');
 
 app.use('/', baseRoute);
 app.use('/api/auth', authRoutes);
@@ -32,6 +33,7 @@ app.use('/api/reporte', reporteRoutes);
 app.use('/api/categoria', categoriaRoutes);
 app.use('/api/status', statusRoutes);
 app.use('/api/link', linkRoutes);
+app.use('/api/notification', notificationRoutes);
 // Documentação Swagger
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
