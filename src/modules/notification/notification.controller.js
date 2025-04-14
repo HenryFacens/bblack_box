@@ -1,15 +1,10 @@
 const { Notification } = require('../../models');
 const jwt = require('jsonwebtoken');
+const { verifyToken } = require('../../services/authService');
 
 exports.getNotificationByUser = async (req, res) => {
     try {
-        // Pegar token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Token não fornecido' });
-        }
-        // Verificar e decodificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const decoded = verifyToken(req);
 
         const userId = decoded.id;
 
@@ -31,13 +26,7 @@ exports.getNotificationByUser = async (req, res) => {
 
 exports.deleteNotificationById = async (req, res) => {
     try {
-        // Pegar token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Token não fornecido' });
-        }
-        // Verificar e decodificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const decoded = verifyToken(req);
 
         const userId = decoded.id;
 
@@ -59,13 +48,7 @@ exports.deleteNotificationById = async (req, res) => {
 
 exports.deleteAllNotifications = async (req, res) => {
     try {
-        // Pegar token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Token não fornecido' });
-        }
-        // Verificar e decodificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const decoded = verifyToken(req);
 
         const userId = decoded.id;
 

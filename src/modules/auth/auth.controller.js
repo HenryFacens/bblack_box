@@ -6,6 +6,7 @@ const agent = new https.Agent({ family: 4 });
 const fs = require('fs');
 const path = require('path');
 const { User } = require('../../models');
+const { verifyToken } = require('../../services/authService');
 
 const secretKey = process.env.JWT_SECRET || 'sua_chave_secreta';
 
@@ -81,14 +82,7 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Token não fornecido' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, secretKey);
+    const decoded = verifyToken(req);
 
     // Buscar o usuário pelo ID do token
     const user = await User.findByPk(decoded.id);

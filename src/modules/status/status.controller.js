@@ -1,18 +1,12 @@
 const jwt = require('jsonwebtoken');
 const { createNotification } = require('../../services/notification');
+const { verifyToken } = require('../../services/authService');
 
 const { Status, Reporte } = require('../../models');
 
 exports.listStatus = async (req, res) => {
     try {
-        // Pegar o token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-          return res.status(401).json({ message: 'Token não fornecido' });
-        }
-    
-        // Verificar e decodificar o token
-        jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        verifyToken(req);
 
         const status = await Status.findAll({
             attributes: ['statusReporte']
@@ -37,14 +31,7 @@ exports.updateStatusReporte = async (req, res) => {
     try {
       const { reporteId } = req.params;
       const { newStatus } = req.body;
-      // Pegar o token do cabeçalho da requisição
-      const token = req.header('Authorization')?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ message: 'Token não fornecido' });
-      }
-  
-      // Verificar e decodificar o token
-      jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+      verifyToken(req);
   
       if (!reporteId || isNaN(reporteId)) {
         return res.status(400).json({ message: 'ID do reporte inválido ou não fornecido.' });

@@ -1,17 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { Reporte, Categoria, Status, InteracoesReporte, ComentarioReporte } = require('../../models');
 const reporteService = require('../../services/reporteService');
+const { verifyToken } = require('../../services/authService');
 
 exports.createReporte = async (req, res) =>{
     try {
-        // Pegar token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Token não fornecido' });
-        }
-
-        // Verificar e decodificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const decoded = verifyToken(req);
         const nomePerfil = decoded.nome;
         const fotoPerfil = decoded.fotoPerfil;
         const userId = decoded.id;
@@ -64,16 +58,9 @@ exports.createReporte = async (req, res) =>{
 
 exports.getReportes = async (req, res) => {
     try {
-        // Pegar token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Token não fornecido' });
-        }
-        // Verificar e decodificar o token
-        jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        verifyToken(req);
 
         // Buscar todos os reportes na tabela
-        //const reportes = await Reporte.findAll();
         const reportes = await reporteService.getLikesandDislikes();
 
         return res.status(200).json({
@@ -87,13 +74,7 @@ exports.getReportes = async (req, res) => {
 
 exports.avaliacaoReporte = async (req, res) => {
     try{
-        // Pegar token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Token não fornecido' });
-        }
-        // Verificar e decodificar o token
-        jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        verifyToken(req);
 
         const { idReporte, avaliacao } = req.body;
 
@@ -129,13 +110,7 @@ exports.avaliacaoReporte = async (req, res) => {
 
 exports.interagirReporte = async (req, res) =>{
     try{
-        // Pegar token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Token não fornecido' });
-        }
-        // Verificar e decodificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const decoded = verifyToken(req);
         const userId = decoded.id;
 
         const { reporteId, } = req.params;
@@ -179,13 +154,7 @@ exports.interagirReporte = async (req, res) =>{
 
 exports.comentarioReporte = async (req, res) => {
     try {
-        // Pegar token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Token não fornecido' });
-        }
-        // Verificar e decodificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const decoded = verifyToken(req);
         const userId = decoded.id;
 
         const { reporteId, } = req.params;

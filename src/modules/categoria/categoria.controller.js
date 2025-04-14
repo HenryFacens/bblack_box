@@ -1,17 +1,11 @@
 const jwt = require('jsonwebtoken');
 
 const { Categoria } = require('../../models');
+const { verifyToken } = require('../../services/authService');
 
 exports.listCategorias = async (req, res) => {
     try {
-        // Pegar o token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-          return res.status(401).json({ message: 'Token não fornecido' });
-        }
-    
-        // Verificar e decodificar o token
-        jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        verifyToken(req);
         
         const categorias = await Categoria.findAll({
             attributes: ['categoriasReporte']
@@ -34,14 +28,7 @@ exports.listCategorias = async (req, res) => {
 
 exports.createCategoria = async (req, res) => {
     try{
-        // Pegar o token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-          return res.status(401).json({ message: 'Token não fornecido' });
-        }
-    
-        // Verificar e decodificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const decoded = verifyToken(req);
         const role = decoded.role;
 
         const categoriasReporte = req.body;
@@ -61,14 +48,7 @@ exports.createCategoria = async (req, res) => {
 
 exports.deleteCategoria = async (req, res) => {
     try {
-        // Pegar o token do cabeçalho da requisição
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-          return res.status(401).json({ message: 'Token não fornecido' });
-        }
-    
-        // Verificar e decodificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+        const decoded = verifyToken(req);
         const role = decoded.role;
         
         const { id } = req.params;
