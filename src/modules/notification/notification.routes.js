@@ -27,4 +27,47 @@ const notificationController = require('./notification.controller');
  */
 router.get('/get', notificationController.getNotificationByUser);
 
+/**
+ * @swagger
+ * /api/notification/delete/{notificationId}:
+ *   delete:
+ *     tags:
+ *       - Notification
+ *     summary: Deleta uma notificação específica
+ *     description: Deleta uma notificação específica do usuário logado
+ *     parameters:
+ *       - name: notificationId
+ *         in: path
+ *         required: true
+ *         description: ID da notificação a ser deletada
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Notificação deletada com sucesso
+ *       401:
+ *         description: Token JWT ausente ou inválido
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.delete('/delete/:notificationId', notificationController.deleteNotificationById);
+
+/**
+ * @swagger
+ * /api/notification/delete-all:
+ *   delete:
+ *     tags:
+ *       - Notification
+ *     summary: Deleta todas as notificações do usuário logado
+ *     description: Deleta todas as notificações do usuário logado
+ *     responses:
+ *       200:
+ *         description: Todas as notificações deletadas com sucesso
+ *       401:
+ *         description: Token JWT ausente ou inválido
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.delete('/delete-all', notificationController.deleteAllNotifications);
+
 module.exports = router;
