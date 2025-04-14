@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('./user.controller');
+const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
  * @swagger
@@ -21,7 +22,7 @@ const userController = require('./user.controller');
  *       200:
  *         description: Dados do perfil do usuário.
  */
-router.get('/profile', userController.getProfile);
+router.get('/profile', authorizeRoles('admin', 'externo', 'user'), userController.getProfile);
 
 /**
  * @swagger
@@ -54,7 +55,7 @@ router.get('/profile', userController.getProfile);
  *       400:
  *         description: Dados inválidos.
  */
-router.put('/update', userController.updateProfile);
+router.put('/update', authorizeRoles('admin', 'externo', 'user'), userController.updateProfile);
 
 /**
  * @swagger
@@ -70,7 +71,7 @@ router.put('/update', userController.updateProfile);
  *       404:
  *         description: Mensagem de erro. Usuário não encontrado para deletar
  */
-router.delete('/delete', userController.deleteProfile);
+router.delete('/delete', authorizeRoles('admin', 'externo', 'user'), userController.deleteProfile);
 
 /**
  * @swagger
@@ -103,7 +104,7 @@ router.delete('/delete', userController.deleteProfile);
  *         description: Erro ao enviar e-mail.
  */
 
-router.post('/forgot-password', userController.forgotPassword);
+router.post('/forgot-password', authorizeRoles('admin', 'externo', 'user'), userController.forgotPassword);
 
 /**
  * @swagger
@@ -139,6 +140,6 @@ router.post('/forgot-password', userController.forgotPassword);
  *       400:
  *         description: Token inválido, expirado ou senhas não coincidem.
  */
-router.post('/reset-password', userController.resetPassword);
+router.post('/reset-password', authorizeRoles('admin', 'externo', 'user'), userController.resetPassword);
 
 module.exports = router;

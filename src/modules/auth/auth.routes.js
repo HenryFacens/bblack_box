@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('./auth.controller');
+const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
  * @swagger
@@ -85,6 +86,6 @@ router.post('/login', authController.login);
  *       500:
  *         description: Mensagem de erro ao tentar realizar o logout
  */
-router.post('/logout', authController.logout);
+router.post('/logout', authorizeRoles('admin', 'externo', 'user'), authController.logout);
 
 module.exports = router;

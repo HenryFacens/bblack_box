@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const linkController = require('./link.controller');
+const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
  * @swagger
@@ -30,7 +31,7 @@ const linkController = require('./link.controller');
  *       500:
  *         description: Erro ao gerar o link
  */
-router.post('/share/:reporteId', linkController.gerarLink);
+router.post('/share/:reporteId', authorizeRoles('admin', 'externo', 'user'), linkController.gerarLink);
 
 /**
  * @swagger
@@ -53,6 +54,6 @@ router.post('/share/:reporteId', linkController.gerarLink);
  *       400:
  *         description: Link inválido, expirado ou já utilizado
  */
-router.get('/access/:token', linkController.acessarLink);
+router.get('/access/:token', authorizeRoles('admin', 'externo', 'user'), linkController.acessarLink);
 
 module.exports = router;

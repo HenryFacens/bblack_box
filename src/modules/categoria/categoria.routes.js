@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const categoriaController = require('./categoria.controller')
+const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
  * @swagger
@@ -36,7 +37,7 @@ const categoriaController = require('./categoria.controller')
  *       500:
  *         description: Erro interno do servidor
  */
-router.post('/create', categoriaController.createCategoria);
+router.post('/create', authorizeRoles('admin'), categoriaController.createCategoria);
 
 /**
  * @swagger
@@ -52,7 +53,7 @@ router.post('/create', categoriaController.createCategoria);
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/get', categoriaController.listCategorias);
+router.get('/get', authorizeRoles('admin'), categoriaController.listCategorias);
 
 /**
  * @swagger
@@ -80,6 +81,6 @@ router.get('/get', categoriaController.listCategorias);
  *       500:
  *         description: Erro interno do servidor
  */
-router.delete('/:id', categoriaController.deleteCategoria);
+router.delete('/:id', authorizeRoles('admin'), categoriaController.deleteCategoria);
 
 module.exports = router;

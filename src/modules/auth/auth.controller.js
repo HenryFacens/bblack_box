@@ -12,7 +12,8 @@ const secretKey = process.env.JWT_SECRET || 'sua_chave_secreta';
 
 async function register(req, res) {
   try {
-    const { nome, email, senha, role, birthdate, cpf, cep } = req.body;
+    const { nome, email, senha, birthdate, cpf, cep } = req.body;
+    const role = 'user';
 
     let address = null, bairro = null, localidade = null, uf = null;
     const salt = await bcrypt.genSalt(10);

@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const reporteController = require('./reporte.controller')
 const upload = require('../../middleware/upload')
+const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
  * @swagger
@@ -57,7 +58,8 @@ const upload = require('../../middleware/upload')
 
 router.post(
     '/create', 
-    upload.fields([{ name: 'imagemReporte', maxCount: 1 }]), 
+    upload.fields([{ name: 'imagemReporte', maxCount: 1 }]),
+    authorizeRoles('admin', 'user'),
     reporteController.createReporte
 );
 
@@ -73,7 +75,7 @@ router.post(
  *       200:
  *         description: Reportes criados
  */
-router.get('/get', reporteController.getReportes);
+router.get('/get', authorizeRoles('admin', 'externo', 'user'), reporteController.getReportes);
 
 /**
  * @swagger
@@ -100,7 +102,7 @@ router.get('/get', reporteController.getReportes);
  *       400:
  *         description: Dados inválidos.
  */
-router.put('/update', reporteController.avaliacaoReporte);
+router.put('/update', authorizeRoles('admin', 'user'), reporteController.avaliacaoReporte);
 
 /**
  * @swagger
@@ -138,7 +140,7 @@ router.put('/update', reporteController.avaliacaoReporte);
  *       500:
  *         description: Erro interno do servidor
  */
-router.post('/:reporteId/interagir', reporteController.interagirReporte);
+router.post('/:reporteId/interagir', authorizeRoles('admin', 'user'), reporteController.interagirReporte);
 
 /**
  * @swagger
@@ -173,6 +175,6 @@ router.post('/:reporteId/interagir', reporteController.interagirReporte);
  *       500:
  *         description: Erro interno do servidor
  */
-router.post('/:reporteId/comentario', reporteController.comentarioReporte);
+router.post('/:reporteId/comentario', authorizeRoles('admin', 'user'), reporteController.comentarioReporte);
 
 module.exports = router;
