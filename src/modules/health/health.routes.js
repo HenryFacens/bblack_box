@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const healthController = require('./health.controller');
-const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
  * @swagger
@@ -24,6 +23,6 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *       400:
  *         description: Mensagem de erro ao acessar a API
  */
-router.get('/', authorizeRoles('admin', 'externo', 'user'), healthController.health);
+router.get('/', healthController.health);
 
 module.exports = router;
