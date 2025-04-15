@@ -21,7 +21,7 @@ module.exports = {
           key: 'nome',           // campo da tabela referenciada
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',     // se o user for deletado, também remove esse registro
+        onDelete: 'SET NULL',     // se o user for deletado, também remove esse registro
       },
       motivo: {
         type: Sequelize.STRING,

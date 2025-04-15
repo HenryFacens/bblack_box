@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    const deleteUser = sequelize.define('deleteUser', {
+    const DeleteUser = sequelize.define('DeleteUser', {
         userId: {
             type: DataTypes.INTEGER,
             allowNull: false
@@ -18,14 +18,5 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'deleteUser',
         timestamps: true  
     });
-
-    deleteUser.associate = (models) => {
-        deleteUser.belongsTo(models.User, {
-            foreignKey: 'userNameToBeDeleted',
-            targetKey: 'nome',
-            as: 'userToDelete'
-        });
-    };
-
-    return deleteUser;
+    return DeleteUser;
 }

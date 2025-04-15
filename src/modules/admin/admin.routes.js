@@ -66,4 +66,35 @@ router.get('/get', authorizeRoles('admin'), adminController.listUsers);
  */
 router.patch('/update/:userId/role', authorizeRoles('admin'), adminController.updateUserRole);
 
+/**
+ * @swagger
+ * /api/admin/delete:
+ *   delete:
+ *     tags:
+ *       - Admin
+ *     summary: Deleta um usuário pelo nome
+ *     description: Deleta um usuário existente pelo nome fornecido no corpo da requisição.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userNameToBeDeleted:
+ *                 type: string
+ *               motivo:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Usuário deletado com sucesso
+ *       401:
+ *         description: Token não fornecido ou inválido
+ *       404:
+ *         description: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.delete('/delete', authorizeRoles('admin'), adminController.deleteUser);
+
 module.exports = router;

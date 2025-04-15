@@ -9,6 +9,7 @@ const ComentarioReporte = require('./comentarioReporte')(sequelize, DataTypes);
 const LinkCompartilhado = require('./linkCompartilhado')(sequelize, DataTypes);
 const Notification = require('./notification')(sequelize, DataTypes);
 const RefreshToken = require('./refreshToken')(sequelize, DataTypes);
+const DeleteUser = require('./deleteUser')(sequelize, DataTypes);
 
 const db = {
     sequelize,
@@ -21,6 +22,7 @@ const db = {
     LinkCompartilhado,
     Notification,
     RefreshToken,
+    DeleteUser,
   };
 
 Object.values(db).forEach(model => {
