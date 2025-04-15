@@ -68,6 +68,47 @@ router.patch('/update/:userId/role', authorizeRoles('admin'), adminController.up
 
 /**
  * @swagger
+ * /api/admin/ban:
+ *   post:
+ *     tags:
+ *       - Admin
+ *     summary: Banir um usuário
+ *     description: Bane um usuário existente e salva o registro de banimento com as informações fornecidas. Se o motivo do banimento for "post" ou "comentario", o parâmetro reporteId se torna obrigatório.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               UserNameBanned:
+ *                 type: string
+ *               reason:
+ *                 type: string
+ *                 enum: [post, comentario, outros]
+ *               reporteId:
+ *                 type: integer
+ *             required:
+ *               - UserNameBanned
+ *               - reason
+ *     responses:
+ *       200:
+ *         description: Usuário banido com sucesso e registro salvo.
+ *       400:
+ *         description: Dados inválidos ou falta de parâmetros obrigatórios.
+ *       401:
+ *         description: Token não fornecido ou inválido.
+ *       403:
+ *         description: Ação não permitida.
+ *       404:
+ *         description: Usuário não encontrado.
+ *       500:
+ *         description: Erro interno do servidor.
+ */
+router.post('/ban', authorizeRoles('admin'), adminController.banUser)
+
+/**
+ * @swagger
  * /api/admin/delete:
  *   delete:
  *     tags:
@@ -96,5 +137,7 @@ router.patch('/update/:userId/role', authorizeRoles('admin'), adminController.up
  *         description: Erro interno do servidor
  */
 router.delete('/delete', authorizeRoles('admin'), adminController.deleteUser);
+
+
 
 module.exports = router;

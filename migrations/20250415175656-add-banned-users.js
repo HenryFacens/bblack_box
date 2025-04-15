@@ -17,10 +17,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      motivo: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
       banExpiryDate: {
         type: Sequelize.DATE,
         allowNull: false

@@ -7,7 +7,7 @@ const REFRESH_SECRET = process.env.REFRESH_SECRET || 'chave_refresh_secreta';
 // Geração de Access Token
 exports.generateAccessToken = (user) => {
   return jwt.sign(
-    { id: user.id, role: user.role }, 
+    { id: user.id, role: user.role, fotoPerfil: user.fotoPerfil, nome: user.nome}, 
     JWT_SECRET, 
     { expiresIn: '15m' } // Expiração de 15 minutos
   );

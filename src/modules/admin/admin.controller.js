@@ -1,6 +1,6 @@
 const { User } = require('../../models');
 const { verifyToken } = require('../../services/authService');
-const { deleteUserByName } = require('../../services/adminPanel');
+const { deleteUserByName, bannedUsers } = require('../../services/adminPanel');
 
 exports.listUsers = async (req, res) => {
     try {
@@ -90,3 +90,52 @@ exports.deleteUser = async (req, res) => {
         });
     }
 };
+
+exports.banUser = async (req, res) => {
+    try {
+        const decoded = verifyToken(req);
+
+        const { UserNameBanned, reason, reporteId } = req.body;
+
+        const userId = decoded.id;
+
+        if (!UserNameBanned) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nome do usuário a ser banido é obrigatório'
+            })
+        }
+
+        if (!reason) {
+            return res.status(400).json({
+                success: false,
+                message: 'Motivo do banimento é obrigatório'
+            })
+        }
+
+        const result = await bannedUsers({
+            UserNameBanned,
+            reason,
+            userId,
+            reporteId
+        })
+
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Erro ao banir usuário:', error);
+
+        const errorMappings = {
+            'Usuário não encontrado': 404,
+            'Não é permitido banir seu próprio usuário': 403,
+            'Nome do usuário é obrigatório': 400,
+            'Reason é obrigatório': 400
+        };
+
+        const statusCode = errorMappings[error.message] || 500;
+        
+        return res.status(statusCode).json({ 
+            success: false,
+            message: error.message || 'Erro interno do servidor'
+        });
+    }
+}

@@ -10,10 +10,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        motivo: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
         banExpiryDate: {
             type: DataTypes.DATE,
             allowNull: false
