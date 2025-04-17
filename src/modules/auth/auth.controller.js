@@ -31,11 +31,16 @@ async function register(req, res) {
       }
     }
 
-    // Sorteia uma imagem da pasta 'static/fotosPerfil/'
-    const fotosPerfilDir = path.join(__dirname, '..', '..', 'static', 'fotosPerfil');
+    const fotosPerfilDir = path.join(__dirname, '..', '..', '..', 'static', 'fotosPerfil');
+
+    // Lê os arquivos do diretório
     const fotos = fs.readdirSync(fotosPerfilDir);
+
+    // Seleciona uma foto aleatória
     const fotosSorted = fotos[Math.floor(Math.random() * fotos.length)];
-    const fotoPerfil = path.join(fotosPerfilDir, fotosSorted);
+
+    // Salva o caminho relativo incluindo src/static/fotosPerfil
+    const fotoPerfil = `fotosPerfil/${fotosSorted}`;
 
     // Criar o usuário no banco de dados
     const user = await User.create({
