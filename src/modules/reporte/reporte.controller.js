@@ -2,6 +2,14 @@ const jwt = require('jsonwebtoken');
 const { Reporte, Categoria, Status, InteracoesReporte, ComentarioReporte } = require('../../models');
 const reporteService = require('../../services/reporteService');
 const { verifyToken } = require('../../services/authService');
+const path = require('path');
+
+const corrigirCaminhoImagem = (caminho, tipo) => {
+    if (!caminho) return null;
+    if (caminho.startsWith(tipo + '/')) return caminho;
+    if (caminho.includes(tipo)) return tipo + '/' + path.basename(caminho);
+    return caminho;
+};
 
 exports.createReporte = async (req, res) =>{
     try {
@@ -71,6 +79,38 @@ exports.getReportes = async (req, res) => {
         return res.status(500).json({ message: 'Erro interno do servidor.' })
     }
 }
+
+exports.getMyReportes = async (req, res) => {
+    try {
+        const decoded = verifyToken(req);
+        const userId = decoded.id;
+
+        // Buscar todos os reportes do usuário logado
+        let reportes = await Reporte.findAll({ where: { userId } });
+
+        // Corrigir os caminhos das imagens
+        reportes = reportes.map(reporte => ({
+            id: reporte.id,
+            descricao: reporte.descricaoReporte,
+            fotoPerfil: corrigirCaminhoImagem(reporte.fotoPerfil, 'fotosPerfil'),
+            imagemReporte: corrigirCaminhoImagem(reporte.imagemReporte, 'uploads'),
+            nomePerfil: reporte.nomePerfil,
+            horarioReporte: reporte.horarioReporte,
+            localizacaoReporte: reporte.localizacaoReporte,
+            categoriaReporte: reporte.categoriaReporte,
+            statusReporte: reporte.statusReporte,
+            avaliacaoReporte: reporte.avaliacaoReporte,
+            // Adicione outros campos necessários
+        }));
+
+        return res.status(200).json({
+            data: reportes
+        });
+    } catch (error) {
+        console.error('Erro ao listar reportes do usuário: ', error);
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+};
 
 exports.avaliacaoReporte = async (req, res) => {
     try{
