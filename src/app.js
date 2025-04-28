@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const { connectDB } = require('./config/db');
@@ -13,6 +14,9 @@ const app = express();
 app.use(cors({
   origin: '*',
 }));
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/fotosPerfil', express.static(path.join(__dirname, '../static/fotosPerfil')));
 
 app.use(express.json());
 

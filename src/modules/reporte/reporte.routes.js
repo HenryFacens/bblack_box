@@ -79,6 +79,20 @@ router.get('/get', authorizeRoles('admin', 'externo', 'user'), reporteController
 
 /**
  * @swagger
+ * /api/reporte/me:
+ *   get:
+ *     tags:
+ *       - Reporte
+ *     summary: Retorna reportes do usuário logado
+ *     description: Retorna todos os reportes criados pelo usuário autenticado
+ *     responses:
+ *       200:
+ *         description: Reportes do usuário logado
+ */
+router.get('/me', authorizeRoles('admin', 'externo', 'user'), reporteController.getMyReportes);
+
+/**
+ * @swagger
  * /api/reporte/update:
  *   put:
  *     tags:
