@@ -29,8 +29,10 @@ const categoriaRoutes = require('./modules/categoria/categoria.routes');
 const statusRoutes = require('./modules/status/status.routes');
 const linkRoutes = require('./modules/link/link.routes');
 const notificationRoutes = require('./modules/notification/notification.routes');
+const adminRoutes = require('./modules/admin/admin.routes');
 
 app.use('/', baseRoute);
+app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/reporte', reporteRoutes);

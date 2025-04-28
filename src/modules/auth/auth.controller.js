@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
 const https = require('https');
 const axios = require('axios');
 const agent = new https.Agent({ family: 4 });
 const fs = require('fs');
 const path = require('path');
-const { User, RefreshToken } = require('../../models'); // Importando modelos de User e RefreshToken
+const { User, RefreshToken, DeleteUser } = require('../../models'); // Importando modelos de User e RefreshToken
 const { generateRefreshToken, generateAccessToken, createRefreshToken, removeRefreshToken } = require('../../services/tokenService');
 const { verifyToken } = require('../../services/authService');
 
@@ -17,6 +17,22 @@ async function register(req, res) {
     let address = null, bairro = null, localidade = null, uf = null;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(senha, salt);
+
+    const deletedUser = await DeleteUser.findOne({
+      where: {
+        [Op.or]: [
+          { userNameToBeDeleted: nome},
+          { motivo: { [Op.like]: `%${email}%` } }
+        ]
+      }
+    });
+
+    if (deletedUser) {
+      return res.status(400).json({
+        error: 'Não é possível registrar este usuário',
+        message: 'O nome de usuário ou email já está associado a um usuário excluído.'
+      });
+    }
 
     // Se o CEP for informado, buscar os dados na API ViaCEP
     if (cep) {
