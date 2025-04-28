@@ -11,7 +11,7 @@ const corrigirCaminhoImagem = (caminho, tipo) => {
     return caminho;
 };
 
-exports.createReporte = async (req, res) =>{
+exports.createReporte = async (req, res) => {
     try {
         const decoded = verifyToken(req);
         const nomePerfil = decoded.nome;
@@ -35,6 +35,25 @@ exports.createReporte = async (req, res) =>{
             return res.status(400).json({ message: 'Status não encontrado.' });
         }
 
+        // **Passo 1: Verificação de moderação do texto**
+        let resultadoModeracao;
+        try {
+            resultadoModeracao = await moderarTexto(descricaoReporte);
+        } catch (error) {
+            console.error("Erro ao moderar texto:", error);
+            return res.status(500).json({ message: 'Erro ao moderar texto.' });
+        }
+
+        // **Passo 2: Verificar se o resultado da moderação foi flaggeado**
+        if (resultadoModeracao && resultadoModeracao.flagged) {
+            // Retorna erro caso o texto tenha sido flaggeado como ofensivo
+            return res.status(400).json({ 
+                message: 'Texto inapropriado detectado e não será salvo.',
+                detalhes: resultadoModeracao 
+            });
+        }
+
+        // **Passo 3: Salvar no banco se o texto for adequado**
         // Pegar imagem do reporte enviada
         const imagemReporte = req.files.imagemReporte[0].path;
 
@@ -60,9 +79,9 @@ exports.createReporte = async (req, res) =>{
         });
     } catch (error) {
         console.error('Erro ao criar reporte: ', error);
-        return res.status(500).json({ message: 'Erro interno do servidor.' })
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-}
+};
 
 exports.getReportes = async (req, res) => {
     try {

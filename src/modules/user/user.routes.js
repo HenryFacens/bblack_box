@@ -104,7 +104,7 @@ router.delete('/delete', authorizeRoles('admin', 'externo', 'user'), userControl
  *         description: Erro ao enviar e-mail.
  */
 
-router.post('/forgot-password', authorizeRoles('admin', 'externo', 'user'), userController.forgotPassword);
+router.post('/forgot-password', userController.forgotPassword);
 
 /**
  * @swagger
@@ -140,6 +140,6 @@ router.post('/forgot-password', authorizeRoles('admin', 'externo', 'user'), user
  *       400:
  *         description: Token inválido, expirado ou senhas não coincidem.
  */
-router.post('/reset-password', authorizeRoles('admin', 'externo', 'user'), userController.resetPassword);
+router.post('/reset-password', userController.resetPassword);
 
 module.exports = router;
