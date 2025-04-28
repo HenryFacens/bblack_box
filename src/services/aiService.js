@@ -5,7 +5,7 @@ const openai = new OpenAI({
 });
 
 async function moderarTexto(texto) {
-    try {
+    try {                                                                                                                                   
       const response = await openai.moderations.create({ input: texto });
       // Verifique o retorno completo da resposta
       console.log(response);  // Log para ver como a estrutura está vindo
