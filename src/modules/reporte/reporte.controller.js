@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const { Reporte, Categoria, Status, InteracoesReporte, ComentarioReporte } = require('../../models');
 const reporteService = require('../../services/reporteService');
 const { verifyToken } = require('../../services/authService');
+const { moderarTexto } = require('../../services/aiService');
 const path = require('path');
 
 const corrigirCaminhoImagem = (caminho, tipo) => {
