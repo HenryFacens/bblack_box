@@ -1,7 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const reporteController = require('./reporte.controller')
-const upload = require('../../middleware/upload')
+//const upload = require('../../middleware/upload')
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
@@ -58,7 +60,8 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 router.post(
     '/create', 
-    upload.fields([{ name: 'imagemReporte', maxCount: 1 }]),
+    //upload.fields([{ name: 'imagemReporte', maxCount: 1 }]),
+    upload.single('imagemReporte'),
     authorizeRoles('admin', 'user'),
     reporteController.createReporte
 );
