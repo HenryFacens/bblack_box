@@ -14,75 +14,77 @@ const corrigirCaminhoImagem = (caminho, tipo) => {
 
 exports.createReporte = async (req, res) => {
     try {
-        const decoded = verifyToken(req);
-        const nomePerfil = decoded.nome;
-        const fotoPerfil = decoded.fotoPerfil;
-        const userId = decoded.id;
+      const decoded = verifyToken(req);
+      const nomePerfil = decoded.nome;
+      const fotoPerfil = decoded.fotoPerfil;
+      const userId = decoded.id;
+  
+      const { descricaoReporte, localizacaoReporte, categoriaReporte, statusReporte } = req.body;
 
-        const { descricaoReporte, localizacaoReporte, categoriasReporte, statusReporte } = req.body;
-
-        const categoriaExistente = await Categoria.findOne({
-            where: { categoriasReporte: categoriasReporte }
+      console.log('req.file:', req.file);
+      console.log('req.body:', req.body);
+  
+      // Verifica se arquivo foi enviado
+      if (!req.file) {
+        return res.status(400).json({ message: 'Imagem do reporte é obrigatória.' });
+      }
+  
+      const categoriaExistente = await Categoria.findOne({
+        where: { categoriasReporte: categoriaReporte } // ajuste conforme seu banco
+      });
+      if (!categoriaExistente) {
+        return res.status(400).json({ message: 'Categoria não encontrada.' });
+      }
+  
+      const statusExistente = await Status.findOne({
+        where: { statusReporte }
+      });
+      if (!statusExistente) {
+        return res.status(400).json({ message: 'Status não encontrado.' });
+      }
+  
+      let resultadoModeracao;
+      try {
+        resultadoModeracao = await moderarTexto(descricaoReporte);
+      } catch (error) {
+        console.error("Erro ao moderar texto:", error);
+        return res.status(500).json({ message: 'Erro ao moderar texto.' });
+      }
+  
+      if (resultadoModeracao && resultadoModeracao.flagged) {
+        return res.status(400).json({ 
+          message: 'Texto inapropriado detectado e não será salvo.',
+          detalhes: resultadoModeracao 
         });
-        if (!categoriaExistente) {
-            return res.status(400).json({ message: 'Categoria não encontrada.' });
-        }
-
-        // Verificar se o status existe
-        const statusExistente = await Status.findOne({
-            where: { statusReporte }
-        });
-        if (!statusExistente) {
-            return res.status(400).json({ message: 'Status não encontrado.' });
-        }
-
-        // **Passo 1: Verificação de moderação do texto**
-        let resultadoModeracao;
-        try {
-            resultadoModeracao = await moderarTexto(descricaoReporte);
-        } catch (error) {
-            console.error("Erro ao moderar texto:", error);
-            return res.status(500).json({ message: 'Erro ao moderar texto.' });
-        }
-
-        // **Passo 2: Verificar se o resultado da moderação foi flaggeado**
-        if (resultadoModeracao && resultadoModeracao.flagged) {
-            // Retorna erro caso o texto tenha sido flaggeado como ofensivo
-            return res.status(400).json({ 
-                message: 'Texto inapropriado detectado e não será salvo.',
-                detalhes: resultadoModeracao 
-            });
-        }
-
-        // **Passo 3: Salvar no banco se o texto for adequado**
-        // Pegar imagem do reporte enviada
-        const imagemReporte = req.files.imagemReporte[0].path;
-
-        const horarioReporte = new Date();
-        const avaliacaoReporte = null;
-
-        const novoReporte = await Reporte.create({
-            fotoPerfil,
-            nomePerfil,
-            horarioReporte,
-            localizacaoReporte,
-            descricaoReporte,
-            imagemReporte,
-            avaliacaoReporte,
-            categoriaReporte: categoriasReporte,
-            statusReporte,
-            userId
-        });
-
-        return res.status(201).json({
-            message: 'Reporte criado com sucesso',
-            data: novoReporte
-        });
+      }
+  
+      const imagemReporte = req.file.path; // caminho da imagem salva
+  
+      const horarioReporte = new Date();
+      const avaliacaoReporte = null;
+  
+      const novoReporte = await Reporte.create({
+        fotoPerfil,
+        nomePerfil,
+        horarioReporte,
+        localizacaoReporte,
+        descricaoReporte,
+        imagemReporte,
+        avaliacaoReporte,
+        categoriaReporte,
+        statusReporte,
+        userId
+      });
+  
+      return res.status(201).json({
+        message: 'Reporte criado com sucesso',
+        data: novoReporte
+      });
     } catch (error) {
-        console.error('Erro ao criar reporte: ', error);
-        return res.status(500).json({ message: 'Erro interno do servidor.' });
+      console.error('Erro ao criar reporte: ', error);
+      return res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-};
+  };
 
 exports.getReportes = async (req, res) => {
     try {
