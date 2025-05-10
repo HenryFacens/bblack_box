@@ -7,8 +7,9 @@ const storage = multer.diskStorage({
       cb(null, 'uploads/'); // pasta onde as imagens serão salvas
     },
     filename: function (req, file, cb) {
+      const ext = path.extname(file.originalname) || '.jpg';
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, uniqueSuffix + path.extname(file.originalname));
+      cb(null, uniqueSuffix + ext);
     }
   });
   

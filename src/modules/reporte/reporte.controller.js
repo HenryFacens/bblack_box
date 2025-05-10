@@ -14,103 +14,97 @@ const corrigirCaminhoImagem = (caminho, tipo) => {
 
 exports.createReporte = async (req, res) => {
     try {
-      const decoded = verifyToken(req);
-      const nomePerfil = decoded.nome;
-      const fotoPerfil = decoded.fotoPerfil;
-      const userId = decoded.id;
-  
-      const { descricaoReporte, localizacaoReporte, categoriaReporte, statusReporte } = req.body;
+        const decoded = verifyToken(req);
+        const nomePerfil = decoded.nome;
+        const fotoPerfil = decoded.fotoPerfil;
+        const userId = decoded.id;
 
-      console.log('req.file:', req.file);
-      console.log('req.body:', req.body);
-  
-      // Verifica se arquivo foi enviado
-      if (!req.file) {
-        return res.status(400).json({ message: 'Imagem do reporte é obrigatória.' });
-      }
-  
-      const categoriaExistente = await Categoria.findOne({
-        where: { categoriasReporte: categoriaReporte } // ajuste conforme seu banco
-      });
-      if (!categoriaExistente) {
-        return res.status(400).json({ message: 'Categoria não encontrada.' });
-      }
-  
-      const statusExistente = await Status.findOne({
-        where: { statusReporte }
-      });
-      if (!statusExistente) {
-        return res.status(400).json({ message: 'Status não encontrado.' });
-      }
-  
-      let resultadoModeracao;
-      try {
-        resultadoModeracao = await moderarTexto(descricaoReporte);
-      } catch (error) {
-        console.error("Erro ao moderar texto:", error);
-        return res.status(500).json({ message: 'Erro ao moderar texto.' });
-      }
-  
-      if (resultadoModeracao && resultadoModeracao.flagged) {
-        return res.status(400).json({ 
-          message: 'Texto inapropriado detectado e não será salvo.',
-          detalhes: resultadoModeracao 
+        const { descricaoReporte, localizacaoReporte, categoriasReporte, statusReporte } = req.body;
+
+        console.log(' Imagem recebida:', req.file);
+        console.log(' Dados recebidos:', req.body);
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'Imagem do reporte é obrigatória.' });
+        }
+
+        const categoriaExistente = await Categoria.findOne({
+            where: { categoriasReporte }
         });
-      }
-  
-      const imagemReporte = req.file.path; // caminho da imagem salva
-  
-      const horarioReporte = new Date();
-      const avaliacaoReporte = null;
-  
-      const novoReporte = await Reporte.create({
-        fotoPerfil,
-        nomePerfil,
-        horarioReporte,
-        localizacaoReporte,
-        descricaoReporte,
-        imagemReporte,
-        avaliacaoReporte,
-        categoriaReporte,
-        statusReporte,
-        userId
-      });
-  
-      return res.status(201).json({
-        message: 'Reporte criado com sucesso',
-        data: novoReporte
-      });
+        if (!categoriaExistente) {
+            return res.status(400).json({ message: 'Categoria não encontrada.' });
+        }
+
+        const statusExistente = await Status.findOne({
+            where: { statusReporte }
+        });
+        if (!statusExistente) {
+            return res.status(400).json({ message: 'Status não encontrado.' });
+        }
+
+        //  IA de moderação desativada temporariamente
+        // let resultadoModeracao;
+        // try {
+        //     resultadoModeracao = await moderarTexto(descricaoReporte);
+        // } catch (error) {
+        //     console.error(' Erro ao moderar texto:', error);
+        //     return res.status(500).json({ message: 'Erro ao moderar texto.' });
+        // }
+        // if (resultadoModeracao?.flagged) {
+        //     return res.status(400).json({ 
+        //         message: 'Texto inapropriado detectado e não será salvo.',
+        //         detalhes: resultadoModeracao 
+        //     });
+        // }
+
+        const imagemReporte = req.file.path;
+        const horarioReporte = new Date();
+        const avaliacaoReporte = null;
+
+        const novoReporte = await Reporte.create({
+            fotoPerfil,
+            nomePerfil,
+            horarioReporte,
+            localizacaoReporte,
+            descricaoReporte,
+            imagemReporte,
+            avaliacaoReporte,
+            categoriaReporte: categoriasReporte,
+            statusReporte,
+            userId
+        });
+
+        console.log(' Reporte criado:', novoReporte.id);
+
+        return res.status(201).json({
+            message: 'Reporte criado com sucesso',
+            data: novoReporte
+        });
     } catch (error) {
-      console.error('Erro ao criar reporte: ', error);
-      return res.status(500).json({ message: 'Erro interno do servidor.' });
+        console.error(' Erro ao criar reporte:', error);
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-  };
+};
 
 exports.getReportes = async (req, res) => {
     try {
         verifyToken(req);
-
-        // Buscar todos os reportes na tabela
         const reportes = await reporteService.getLikesandDislikes();
 
-        return res.status(200).json({
-            data: reportes
-        });
+        return res.status(200).json({ data: reportes });
     } catch (error) {
-        console.error('Erro ao listar reportes: ', error);
-        return res.status(500).json({ message: 'Erro interno do servidor.' })
+        console.error(' Erro ao listar reportes:', error);
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-}
+};
 
 exports.getMyReportes = async (req, res) => {
     try {
         const decoded = verifyToken(req);
         const userId = decoded.id;
 
-        // Buscar todos os reportes do usuário logado
         let reportes = await Reporte.findAll({ where: { userId } });
 
-        // Corrigir os caminhos das imagens
         reportes = reportes.map(reporte => ({
             id: reporte.id,
             descricao: reporte.descricaoReporte,
@@ -119,44 +113,37 @@ exports.getMyReportes = async (req, res) => {
             nomePerfil: reporte.nomePerfil,
             horarioReporte: reporte.horarioReporte,
             localizacaoReporte: reporte.localizacaoReporte,
-            categoriaReporte: reporte.categoriaReporte,
+            categoriasReporte: reporte.categoriaReporte,
             statusReporte: reporte.statusReporte,
-            avaliacaoReporte: reporte.avaliacaoReporte,
-            // Adicione outros campos necessários
+            avaliacaoReporte: reporte.avaliacaoReporte
         }));
 
-        return res.status(200).json({
-            data: reportes
-        });
+        return res.status(200).json({ data: reportes });
     } catch (error) {
-        console.error('Erro ao listar reportes do usuário: ', error);
+        console.error(' Erro ao listar reportes do usuário:', error);
         return res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 };
 
 exports.avaliacaoReporte = async (req, res) => {
-    try{
+    try {
         verifyToken(req);
 
         const { idReporte, avaliacao } = req.body;
 
-        // Verifica se o idReporte é um número
         if (!idReporte || typeof idReporte !== 'number') {
             return res.status(400).json({ message: 'ID do reporte inválido ou não fornecido.' });
         }
 
-        // verifica se a avaliação é um número entre 0 e 5
         if (avaliacao === undefined || typeof avaliacao !== 'number' || avaliacao < 0 || avaliacao > 5) {
             return res.status(400).json({ message: 'Avaliação inválida. Deve ser um número entre 0 e 5.' });
         }
 
-        // procura o reporte pelo id
         const reporte = await Reporte.findByPk(idReporte);
         if (!reporte) {
             return res.status(404).json({ message: 'Reporte não encontrado.' });
         }
 
-        // Atualiza o campo de avaliação do reporte
         reporte.avaliacaoReporte = avaliacao;
         await reporte.save();
 
@@ -165,20 +152,19 @@ exports.avaliacaoReporte = async (req, res) => {
             data: reporte
         });
     } catch (error) {
-        console.error('Erro ao listar reportes: ', error);
-        return res.status(500).json({ message: 'Erro interno do servidor.' })
+        console.error(' Erro ao avaliar reporte:', error);
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-}
+};
 
-exports.interagirReporte = async (req, res) =>{
-    try{
+exports.interagirReporte = async (req, res) => {
+    try {
         const decoded = verifyToken(req);
         const userId = decoded.id;
+        const { reporteId } = req.params;
+        const { tipo } = req.body;
 
-        const { reporteId, } = req.params;
-        const { tipo } = req.body; // like ou dislike
-
-        if (!['like', 'dislike'].includes(tipo)){
+        if (!['like', 'dislike'].includes(tipo)) {
             return res.status(400).json({ message: 'Tipo inválido.' });
         }
 
@@ -190,15 +176,12 @@ exports.interagirReporte = async (req, res) =>{
         let interacao = null;
 
         if (!existing) {
-            // nenhuma interação anterior, cria
             interacao = await InteracoesReporte.create({ userId, reporteId, tipo });
             responseMessage = `Interação '${tipo}' criada com sucesso.`;
         } else if (existing.tipo === tipo) {
-            // mesmo tipo, remove interação
             await existing.destroy();
             responseMessage = `Interação '${tipo}' removida com sucesso.`;
         } else {
-            // Tipo diferente — atualiza para o novo tipo
             await existing.update({ tipo });
             interacao = existing;
             responseMessage = `Interação atualizada de '${existing.tipo}' para '${tipo}'.`;
@@ -209,17 +192,16 @@ exports.interagirReporte = async (req, res) =>{
             data: interacao
         });
     } catch (err) {
-        console.error('Erro na interação:', err);
+        console.error(' Erro na interação:', err);
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-}
+};
 
 exports.comentarioReporte = async (req, res) => {
     try {
         const decoded = verifyToken(req);
         const userId = decoded.id;
-
-        const { reporteId, } = req.params;
+        const { reporteId } = req.params;
         const { comentario } = req.body;
 
         await ComentarioReporte.create({
@@ -237,7 +219,7 @@ exports.comentarioReporte = async (req, res) => {
             }
         });
     } catch (err) {
-        console.error('Erro na criação de comentário:', err);
+        console.error(' Erro na criação de comentário:', err);
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-}
+};
