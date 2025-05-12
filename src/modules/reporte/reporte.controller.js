@@ -43,19 +43,19 @@ exports.createReporte = async (req, res) => {
         }
 
         //  IA de moderação desativada temporariamente
-        // let resultadoModeracao;
-        // try {
-        //     resultadoModeracao = await moderarTexto(descricaoReporte);
-        // } catch (error) {
-        //     console.error(' Erro ao moderar texto:', error);
-        //     return res.status(500).json({ message: 'Erro ao moderar texto.' });
-        // }
-        // if (resultadoModeracao?.flagged) {
-        //     return res.status(400).json({ 
-        //         message: 'Texto inapropriado detectado e não será salvo.',
-        //         detalhes: resultadoModeracao 
-        //     });
-        // }
+         let resultadoModeracao;
+         try {
+             resultadoModeracao = await moderarTexto(descricaoReporte);
+         } catch (error) {
+             console.error(' Erro ao moderar texto:', error);
+             return res.status(500).json({ message: 'Erro ao moderar texto.' });
+         }
+         if (resultadoModeracao?.flagged) {
+             return res.status(400).json({ 
+                 message: 'Texto inapropriado detectado e não será salvo.',
+                 detalhes: resultadoModeracao 
+             });
+         }
 
         const imagemReporte = req.file.path;
         const horarioReporte = new Date();
