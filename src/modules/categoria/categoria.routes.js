@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const categoriaController = require('./categoria.controller')
+const categoriaController = require('./index')
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
@@ -37,7 +37,7 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *       500:
  *         description: Erro interno do servidor
  */
-router.post('/create', authorizeRoles('admin'), categoriaController.createCategoria);
+router.post('/create', authorizeRoles('admin'), categoriaController.createCategoria.bind(categoriaController));
 
 /**
  * @swagger
@@ -53,7 +53,7 @@ router.post('/create', authorizeRoles('admin'), categoriaController.createCatego
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/get', authorizeRoles('admin'), categoriaController.listCategorias);
+router.get('/get', authorizeRoles('admin'), categoriaController.listCategorias.bind(categoriaController));
 
 /**
  * @swagger
@@ -64,14 +64,17 @@ router.get('/get', authorizeRoles('admin'), categoriaController.listCategorias);
  *     summary: Deleta uma categoria
  *     description: Deleta uma categoria existente. Apenas usuários com papel de administrador (admin) têm permissão para deletar.
  *     parameters:
- *       - name: id
+ *       - in: path  # Indica que o parâmetro 'id' está na rota
+ *         name: id
+ *         required: true
  *         schema:
  *           type: integer
+ *         description: ID da categoria a ser deletada
  *     responses:
  *       200:
  *         description: Categoria deletada com sucesso
  *       400:
- *         description: ID da categoria não fornecido
+ *         description: ID da categoria não fornecido ou inválido
  *       401:
  *         description: Token não fornecido ou inválido
  *       403:
@@ -81,6 +84,6 @@ router.get('/get', authorizeRoles('admin'), categoriaController.listCategorias);
  *       500:
  *         description: Erro interno do servidor
  */
-router.delete('/:id', authorizeRoles('admin'), categoriaController.deleteCategoria);
+router.delete('/:id', authorizeRoles('admin'), categoriaController.deleteCategoria.bind(categoriaController));
 
 module.exports = router;
