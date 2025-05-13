@@ -30,6 +30,7 @@ const statusRoutes = require('./modules/status/status.routes');
 const linkRoutes = require('./modules/link/link.routes');
 const notificationRoutes = require('./modules/notification/notification.routes');
 const adminRoutes = require('./modules/admin/admin.routes');
+const heatmapRoutes = require('./modules/heatmap/heatmap.routes');
 
 app.use('/', baseRoute);
 app.use('/api/admin', adminRoutes);
@@ -40,6 +41,7 @@ app.use('/api/categoria', categoriaRoutes);
 app.use('/api/status', statusRoutes);
 app.use('/api/link', linkRoutes);
 app.use('/api/notification', notificationRoutes);
+app.use('/api/heatmap', heatmapRoutes);
 // Documentação Swagger
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

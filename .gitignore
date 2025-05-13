@@ -136,3 +136,6 @@ dist
 .pnp.*
 
 src/static/fotos_perfil/
+
+# Ignorando a Pasta Uploads para não subir as imagens
+uploads/
