@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const adminController = require('./admin.controller')
+const adminController = require('./index');
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
@@ -26,7 +26,7 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/get', authorizeRoles('admin'), adminController.listUsers);
+router.get('/get', authorizeRoles('admin'), adminController.listUsers.bind(adminController));
 
 /**
  * @swagger
@@ -64,7 +64,7 @@ router.get('/get', authorizeRoles('admin'), adminController.listUsers);
  *       500:
  *         description: Erro interno do servidor
  */
-router.patch('/update/:userId/role', authorizeRoles('admin'), adminController.updateUserRole);
+router.patch('/update/:userId/role', authorizeRoles('admin'), adminController.updateUserRole.bind(adminController));
 
 /**
  * @swagger
@@ -105,7 +105,7 @@ router.patch('/update/:userId/role', authorizeRoles('admin'), adminController.up
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post('/ban', authorizeRoles('admin'), adminController.banUser)
+router.post('/ban', authorizeRoles('admin'), adminController.banUser.bind(adminController));
 
 /**
  * @swagger
@@ -136,8 +136,6 @@ router.post('/ban', authorizeRoles('admin'), adminController.banUser)
  *       500:
  *         description: Erro interno do servidor
  */
-router.delete('/delete', authorizeRoles('admin'), adminController.deleteUser);
-
-
+router.delete('/delete', authorizeRoles('admin'), adminController.deleteUser.bind(adminController));
 
 module.exports = router;

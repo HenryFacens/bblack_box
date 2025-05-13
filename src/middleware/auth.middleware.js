@@ -1,9 +1,10 @@
-const { verifyToken } = require('../services/authService');
+const AuthService = require('../services/authService');
+const authService = new AuthService();
 
 exports.authorizeRoles = (...allowedRoles) => {
     return (req, res, next) => {
         try {
-            const decoded = verifyToken(req);
+            const decoded = authService.verifyToken(req);
             req.user = decoded;
 
             if (!allowedRoles.includes(decoded.role)) {
