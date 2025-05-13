@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('./auth.controller');
+const authController = require('./index');
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
@@ -43,7 +43,7 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *       400:
  *         description: Email já cadastrado ou dados inválidos.
  */
-router.post('/register', authController.register);
+router.post('/register', authController.register.bind(authController));
 
 /**
  * @swagger
@@ -70,7 +70,7 @@ router.post('/register', authController.register);
  *       400:
  *         description: Credenciais inválidas.
  */
-router.post('/login', authController.login);
+router.post('/login', authController.login.bind(authController));
 
 /**
  * @swagger
@@ -86,6 +86,6 @@ router.post('/login', authController.login);
  *       500:
  *         description: Mensagem de erro ao tentar realizar o logout
  */
-router.post('/logout', authorizeRoles('admin', 'externo', 'user'), authController.logout);
+router.post('/logout', authorizeRoles('admin', 'externo', 'user'), authController.logout.bind(authController));
 
 module.exports = router;
