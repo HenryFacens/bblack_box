@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('./user.controller');
+const userController = require('./index');
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
@@ -22,7 +22,7 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *       200:
  *         description: Dados do perfil do usuário.
  */
-router.get('/profile', authorizeRoles('admin', 'externo', 'user'), userController.getProfile);
+router.get('/profile', authorizeRoles('admin', 'externo', 'user'), userController.getProfile.bind(userController));
 
 /**
  * @swagger
@@ -55,7 +55,7 @@ router.get('/profile', authorizeRoles('admin', 'externo', 'user'), userControlle
  *       400:
  *         description: Dados inválidos.
  */
-router.put('/update', authorizeRoles('admin', 'externo', 'user'), userController.updateProfile);
+router.put('/update', authorizeRoles('admin', 'externo', 'user'), userController.updateProfile.bind(userController));
 
 /**
  * @swagger
@@ -71,7 +71,7 @@ router.put('/update', authorizeRoles('admin', 'externo', 'user'), userController
  *       404:
  *         description: Mensagem de erro. Usuário não encontrado para deletar
  */
-router.delete('/delete', authorizeRoles('admin', 'externo', 'user'), userController.deleteProfile);
+router.delete('/delete', authorizeRoles('admin', 'externo', 'user'), userController.deleteProfile.bind(userController));
 
 /**
  * @swagger
@@ -104,7 +104,7 @@ router.delete('/delete', authorizeRoles('admin', 'externo', 'user'), userControl
  *         description: Erro ao enviar e-mail.
  */
 
-router.post('/forgot-password', userController.forgotPassword);
+router.post('/forgot-password', userController.forgotPassword.bind(userController));
 
 /**
  * @swagger
@@ -140,6 +140,6 @@ router.post('/forgot-password', userController.forgotPassword);
  *       400:
  *         description: Token inválido, expirado ou senhas não coincidem.
  */
-router.post('/reset-password', userController.resetPassword);
+router.post('/reset-password', userController.resetPassword.bind(userController));
 
 module.exports = router;
