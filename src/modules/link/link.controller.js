@@ -1,32 +1,32 @@
-const service = require('../../services/linkService');
-const jwt = require('jsonwebtoken');
-const { verifyToken } = require('../../services/authService');
+class LinkController {
+    constructor(linkService, errorHandler) {
+        this.linkService = linkService;
+        this.errorHandler = errorHandler;
+    }
 
-exports.gerarLink = async (req, res) =>{
-  const { reporteId } = req.params;
+    async gerarLink(req, res) {
+        try {
+            const { reporteId } = req.params;
+            const link = await this.linkService.gerarLinkCompartilhado(reporteId);
+            
+            return res.status(201).json({ 
+                token: link.token, 
+                url: `/compartilhamento/acessar/${link.token}` 
+            });
+        } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro ao gerar link de compartilhamento');
+        }
+    }
 
-  try {
-    verifyToken(req);
-    
-    const link = await service.gerarLinkCompartilhado(reporteId);
-    return res.status(201).json({ token: link.token, url: `/compartilhamento/acessar/${link.token}` });
-    
-  } catch (error) {
-    console.error('Erro ao gerar link de compartilhamento: ', error);
-    res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
-  }
+    async acessarLink(req, res) {
+        try {
+            const { token } = req.params;
+            const reporte = await this.linkService.acessarLink(token);
+            return res.status(200).json(reporte);
+        } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro ao acessar link de compartilhamento');
+        }
+    }
 }
 
-exports.acessarLink = async (req, res) => {
-  const { token } = req.params;
-
-  try {
-    verifyToken(req);
-
-    const reporte = await service.acessarLink(token);
-    return res.status(200).json(reporte);
-  } catch (error) {
-    console.error('Erro ao acessar link de compartilhamento: ', error);
-    res.status(400).json({ error: error.message });
-  }
-};
+module.exports = LinkController;
