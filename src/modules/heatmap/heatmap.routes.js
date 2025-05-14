@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const reporteCoordsController = require('./heatmap.controller');
+const reporteCoordsController = require('./index');
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
@@ -18,7 +18,7 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
 router.get(
   '/coords',
   authorizeRoles('admin', 'externo', 'user'),
-  reporteCoordsController.getReportesCoords
+  reporteCoordsController.getReportesCoords.bind(reporteCoordsController)
 );
 
 module.exports = router;
