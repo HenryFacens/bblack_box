@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const notificationController = require('./notification.controller');
+const notificationController = require('./index');
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
@@ -26,7 +26,7 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/get', authorizeRoles('admin', 'externo', 'user'), notificationController.getNotificationByUser);
+router.get('/get', authorizeRoles('admin', 'externo', 'user'), notificationController.getNotificationByUser.bind(notificationController));
 
 /**
  * @swagger
@@ -51,7 +51,7 @@ router.get('/get', authorizeRoles('admin', 'externo', 'user'), notificationContr
  *       500:
  *         description: Erro interno do servidor
  */
-router.delete('/delete/:notificationId', authorizeRoles('admin', 'externo', 'user'), notificationController.deleteNotificationById);
+router.delete('/delete/:notificationId', authorizeRoles('admin', 'externo', 'user'), notificationController.deleteNotificationById.bind(notificationController));
 
 /**
  * @swagger
@@ -69,6 +69,6 @@ router.delete('/delete/:notificationId', authorizeRoles('admin', 'externo', 'use
  *       500:
  *         description: Erro interno do servidor
  */
-router.delete('/delete-all', authorizeRoles('admin', 'externo', 'user'), notificationController.deleteAllNotifications);
+router.delete('/delete-all', authorizeRoles('admin', 'externo', 'user'), notificationController.deleteAllNotifications.bind(notificationController));
 
 module.exports = router;
