@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const statusController = require('./status.controller')
+const statusController = require('./index')
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
 /**
@@ -24,7 +24,7 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/get', authorizeRoles('admin'), statusController.listStatus);
+router.get('/get', authorizeRoles('admin'), statusController.listStatus.bind(statusController));
 
 /**
  * @swagger
@@ -62,6 +62,6 @@ router.get('/get', authorizeRoles('admin'), statusController.listStatus);
  *       500:
  *         description: Erro interno do servidor
  */
-router.patch('/update/:reporteId', authorizeRoles('admin', 'externo'), statusController.updateStatusReporte);
+router.patch('/update/:reporteId', authorizeRoles('admin', 'externo'), statusController.updateStatusReporte.bind(statusController));
 
 module.exports = router;
