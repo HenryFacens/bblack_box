@@ -1,225 +1,97 @@
-const jwt = require('jsonwebtoken');
-const { Reporte, Categoria, Status, InteracoesReporte, ComentarioReporte } = require('../../models');
-const reporteService = require('../../services/reporteService');
-const { verifyToken } = require('../../services/authService');
-const { moderarTexto } = require('../../services/aiService');
-const path = require('path');
-
-const corrigirCaminhoImagem = (caminho, tipo) => {
-    if (!caminho) return null;
-    if (caminho.startsWith(tipo + '/')) return caminho;
-    if (caminho.includes(tipo)) return tipo + '/' + path.basename(caminho);
-    return caminho;
-};
-
-exports.createReporte = async (req, res) => {
-    try {
-        const decoded = verifyToken(req);
-        const nomePerfil = decoded.nome;
-        const fotoPerfil = decoded.fotoPerfil;
-        const userId = decoded.id;
-
-        const { descricaoReporte, localizacaoReporte, categoriasReporte, statusReporte } = req.body;
-
-        console.log(' Imagem recebida:', req.file);
-        console.log(' Dados recebidos:', req.body);
-
-        if (!req.file) {
-            return res.status(400).json({ message: 'Imagem do reporte é obrigatória.' });
-        }
-
-        const categoriaExistente = await Categoria.findOne({
-            where: { categoriasReporte }
-        });
-        if (!categoriaExistente) {
-            return res.status(400).json({ message: 'Categoria não encontrada.' });
-        }
-
-        const statusExistente = await Status.findOne({
-            where: { statusReporte }
-        });
-        if (!statusExistente) {
-            return res.status(400).json({ message: 'Status não encontrado.' });
-        }
-
-        //  IA de moderação desativada temporariamente
-         let resultadoModeracao;
-         try {
-             resultadoModeracao = await moderarTexto(descricaoReporte);
-         } catch (error) {
-             console.error(' Erro ao moderar texto:', error);
-             return res.status(500).json({ message: 'Erro ao moderar texto.' });
-         }
-         if (resultadoModeracao?.flagged) {
-             return res.status(400).json({ 
-                 message: 'Texto inapropriado detectado e não será salvo.',
-                 detalhes: resultadoModeracao 
-             });
-         }
-
-        const imagemReporte = req.file.path;
-        const horarioReporte = new Date();
-        const avaliacaoReporte = null;
-
-        const novoReporte = await Reporte.create({
-            fotoPerfil,
-            nomePerfil,
-            horarioReporte,
-            localizacaoReporte,
-            descricaoReporte,
-            imagemReporte,
-            avaliacaoReporte,
-            categoriaReporte: categoriasReporte,
-            statusReporte,
-            userId
-        });
-
-        console.log(' Reporte criado:', novoReporte.id);
-
-        return res.status(201).json({
-            message: 'Reporte criado com sucesso',
-            data: novoReporte
-        });
-    } catch (error) {
-        console.error(' Erro ao criar reporte:', error);
-        return res.status(500).json({ message: 'Erro interno do servidor.' });
+class ReporteController {
+    constructor(reporteService, errorHandler) {
+        this.reporteService = reporteService;
+        this.errorHandler = errorHandler;
     }
-};
 
-exports.getReportes = async (req, res) => {
-    try {
-        verifyToken(req);
-        const reportes = await reporteService.getLikesandDislikes();
-
-        return res.status(200).json({ data: reportes });
-    } catch (error) {
-        console.error(' Erro ao listar reportes:', error);
-        return res.status(500).json({ message: 'Erro interno do servidor.' });
-    }
-};
-
-exports.getMyReportes = async (req, res) => {
-    try {
-        const decoded = verifyToken(req);
-        const userId = decoded.id;
-
-        let reportes = await Reporte.findAll({ where: { userId } });
-
-        reportes = reportes.map(reporte => ({
-            id: reporte.id,
-            descricao: reporte.descricaoReporte,
-            fotoPerfil: corrigirCaminhoImagem(reporte.fotoPerfil, 'fotosPerfil'),
-            imagemReporte: corrigirCaminhoImagem(reporte.imagemReporte, 'uploads'),
-            nomePerfil: reporte.nomePerfil,
-            horarioReporte: reporte.horarioReporte,
-            localizacaoReporte: reporte.localizacaoReporte,
-            categoriasReporte: reporte.categoriaReporte,
-            statusReporte: reporte.statusReporte,
-            avaliacaoReporte: reporte.avaliacaoReporte
-        }));
-
-        return res.status(200).json({ data: reportes });
-    } catch (error) {
-        console.error(' Erro ao listar reportes do usuário:', error);
-        return res.status(500).json({ message: 'Erro interno do servidor.' });
-    }
-};
-
-exports.avaliacaoReporte = async (req, res) => {
-    try {
-        verifyToken(req);
-
-        const { idReporte, avaliacao } = req.body;
-
-        if (!idReporte || typeof idReporte !== 'number') {
-            return res.status(400).json({ message: 'ID do reporte inválido ou não fornecido.' });
-        }
-
-        if (avaliacao === undefined || typeof avaliacao !== 'number' || avaliacao < 0 || avaliacao > 5) {
-            return res.status(400).json({ message: 'Avaliação inválida. Deve ser um número entre 0 e 5.' });
-        }
-
-        const reporte = await Reporte.findByPk(idReporte);
-        if (!reporte) {
-            return res.status(404).json({ message: 'Reporte não encontrado.' });
-        }
-
-        reporte.avaliacaoReporte = avaliacao;
-        await reporte.save();
-
-        return res.status(200).json({
-            message: 'Avaliação atualizada com sucesso.',
-            data: reporte
-        });
-    } catch (error) {
-        console.error(' Erro ao avaliar reporte:', error);
-        return res.status(500).json({ message: 'Erro interno do servidor.' });
-    }
-};
-
-exports.interagirReporte = async (req, res) => {
-    try {
-        const decoded = verifyToken(req);
-        const userId = decoded.id;
-        const { reporteId } = req.params;
-        const { tipo } = req.body;
-
-        if (!['like', 'dislike'].includes(tipo)) {
-            return res.status(400).json({ message: 'Tipo inválido.' });
-        }
-
-        const existing = await InteracoesReporte.findOne({
-            where: { userId, reporteId }
-        });
-
-        let responseMessage = '';
-        let interacao = null;
-
-        if (!existing) {
-            interacao = await InteracoesReporte.create({ userId, reporteId, tipo });
-            responseMessage = `Interação '${tipo}' criada com sucesso.`;
-        } else if (existing.tipo === tipo) {
-            await existing.destroy();
-            responseMessage = `Interação '${tipo}' removida com sucesso.`;
-        } else {
-            await existing.update({ tipo });
-            interacao = existing;
-            responseMessage = `Interação atualizada de '${existing.tipo}' para '${tipo}'.`;
-        }
-
-        res.status(200).json({
-            message: responseMessage,
-            data: interacao
-        });
-    } catch (err) {
-        console.error(' Erro na interação:', err);
-        res.status(500).json({ message: 'Erro interno do servidor.' });
-    }
-};
-
-exports.comentarioReporte = async (req, res) => {
-    try {
-        const decoded = verifyToken(req);
-        const userId = decoded.id;
-        const { reporteId } = req.params;
-        const { comentario } = req.body;
-
-        await ComentarioReporte.create({
-            comentario,
-            userId,
-            reporteId
-        });
-
-        res.status(200).json({
-            message: 'Comentário criado com sucesso',
-            data: {
-                comentario,
+    async createReporte(req, res) {
+        try {
+            const userId = req.user.id;
+            const userData = {
+                nome: req.user.nome,
+                fotoPerfil: req.user.fotoPerfil
+            };
+            
+            const reporteData = {
+                ...req.body,
+                imagem: req.file,
                 userId,
-                reporteId
-            }
-        });
-    } catch (err) {
-        console.error(' Erro na criação de comentário:', err);
-        res.status(500).json({ message: 'Erro interno do servidor.' });
+                userData
+            };
+
+            const novoReporte = await this.reporteService.createReporte(reporteData);
+            
+            return res.status(201).json({
+                message: 'Reporte criado com sucesso',
+                data: novoReporte
+            });
+        } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro ao criar reporte');
+        }
     }
-};
+
+    async getReportes(req, res) {
+        try {
+            const reportes = await this.reporteService.getReportesWithInteractions();
+            return res.status(200).json({ data: reportes });
+        } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro ao listar reportes');
+        }
+    }
+
+    async getMyReportes(req, res) {
+        try {
+            const userId = req.user.id;
+            const reportes = await this.reporteService.getReportesByUser(userId);
+            return res.status(200).json({ data: reportes });
+        } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro ao listar reportes do usuário');
+        }
+    }
+
+    async avaliacaoReporte(req, res) {
+        try {
+            const { idReporte, avaliacao } = req.body;
+            const reporte = await this.reporteService.avaliarReporte(idReporte, avaliacao);
+            return res.status(200).json({
+                message: 'Avaliação atualizada com sucesso.',
+                data: reporte
+            });
+        } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro ao avaliar reporte');
+        }
+    }
+
+    async interagirReporte(req, res) {
+        try {
+            const userId = req.user.id;
+            const { reporteId } = req.params;
+            const { tipo } = req.body;
+
+            const result = await this.reporteService.interagirComReporte(userId, reporteId, tipo);
+            
+            return res.status(200).json(result);
+        } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro na interação');
+        }
+    }
+
+    async comentarioReporte(req, res) {
+        try {
+            const userId = req.user.id;
+            const { reporteId } = req.params;
+            const { comentario } = req.body;
+
+            const result = await this.reporteService.comentarReporte(userId, reporteId, comentario);
+            
+            return res.status(200).json({
+                message: 'Comentário criado com sucesso',
+                data: result
+            });
+        } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro na criação de comentário');
+        }
+    }
+}
+
+module.exports = ReporteController;

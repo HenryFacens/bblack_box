@@ -1,8 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const reporteController = require('./reporte.controller')
-// const multer = require('multer');
-// const upload = multer({ dest: 'uploads/' });
+const reporteController = require('./index')
 const upload = require('../../middleware/upload');
 const { authorizeRoles } = require('../../middleware/auth.middleware');
 
@@ -32,7 +30,6 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *               - imagemReporte
  *               - localizacaoReporte
  *               - categoriasReporte
- *               - statusReporte
  *             properties:
  *               descricaoReporte:
  *                 type: string
@@ -44,8 +41,6 @@ const { authorizeRoles } = require('../../middleware/auth.middleware');
  *                   type: string
  *                   format: binary
  *               categoriasReporte:
- *                 type: string
- *               statusReporte:
  *                 type: string
  *     responses:
  *       201:
@@ -63,7 +58,7 @@ router.post(
     //upload.fields([{ name: 'imagemReporte', maxCount: 1 }]),
     upload.single('imagemReporte'),
     authorizeRoles('admin', 'user'),
-    reporteController.createReporte
+    reporteController.createReporte.bind(reporteController)
 );
 
 /**
@@ -78,7 +73,7 @@ router.post(
  *       200:
  *         description: Reportes criados
  */
-router.get('/get', authorizeRoles('admin', 'externo', 'user'), reporteController.getReportes);
+router.get('/get', authorizeRoles('admin', 'externo', 'user'), reporteController.getReportes.bind(reporteController));
 
 /**
  * @swagger
@@ -92,7 +87,7 @@ router.get('/get', authorizeRoles('admin', 'externo', 'user'), reporteController
  *       200:
  *         description: Reportes do usuário logado
  */
-router.get('/me', authorizeRoles('admin', 'externo', 'user'), reporteController.getMyReportes);
+router.get('/me', authorizeRoles('admin', 'externo', 'user'), reporteController.getMyReportes.bind(reporteController));
 
 /**
  * @swagger
@@ -119,7 +114,7 @@ router.get('/me', authorizeRoles('admin', 'externo', 'user'), reporteController.
  *       400:
  *         description: Dados inválidos.
  */
-router.put('/update', authorizeRoles('admin', 'user'), reporteController.avaliacaoReporte);
+router.put('/update', authorizeRoles('admin', 'user'), reporteController.avaliacaoReporte.bind(reporteController));
 
 /**
  * @swagger
@@ -157,7 +152,7 @@ router.put('/update', authorizeRoles('admin', 'user'), reporteController.avaliac
  *       500:
  *         description: Erro interno do servidor
  */
-router.post('/:reporteId/interagir', authorizeRoles('admin', 'user'), reporteController.interagirReporte);
+router.post('/:reporteId/interagir', authorizeRoles('admin', 'user'), reporteController.interagirReporte.bind(reporteController));
 
 /**
  * @swagger
@@ -192,6 +187,6 @@ router.post('/:reporteId/interagir', authorizeRoles('admin', 'user'), reporteCon
  *       500:
  *         description: Erro interno do servidor
  */
-router.post('/:reporteId/comentario', authorizeRoles('admin', 'user'), reporteController.comentarioReporte);
+router.post('/:reporteId/comentario', authorizeRoles('admin', 'user'), reporteController.comentarioReporte.bind(reporteController));
 
 module.exports = router;
