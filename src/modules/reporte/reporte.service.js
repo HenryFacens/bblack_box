@@ -63,7 +63,7 @@ class ReporteService {
             imagemReporte: imagem.path,
             avaliacaoReporte: null,
             categoriaReporte: categoriasReporte,
-            statusReporte: 'Pendente',
+            statusReporte: 'Pendentew',
             userId
         });
     }

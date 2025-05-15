@@ -1,120 +1,265 @@
 # Black Box Backend
 
-Este projeto é uma estrutura base para uma API utilizando **Express**, **PostgreSQL**, **JWT** e **Swagger**, organizada de forma modular e escalável.
+Sistema de gerenciamento de reportes e ocorrências, desenvolvido com Node.js, Express e PostgreSQL, seguindo princípios SOLID e boas práticas de arquitetura.
 
-## Estrutura do Projeto
+## 🚀 Características
+
+- Autenticação JWT
+- Documentação Swagger
+- Arquitetura modular
+- Tratamento centralizado de erros
+- Upload de imagens
+- Sistema de notificações
+- Interações (likes/dislikes)
+- Comentários
+- Avaliações
+- Moderação de conteúdo via IA
+
+## 📁 Estrutura do Projeto
+
 ```bash
-bblack_box/
+black_box/
 ├── config/
-│   └── config.json       // Configurações do banco para o Sequelize CLI
-├── migrations/           // Arquivos de migração (ex.: criação da tabela "users")
-├── seeders/              // Arquivos de seed (ex.: inserção do superusuário)
+│   └── config.json          # Configurações Sequelize
+├── migrations/              # Migrações do banco
+├── seeders/                 # Seeds iniciais
 ├── src/
-│   ├── app.js            // Configuração da aplicação Express (middlewares, rotas, etc.)
-│   ├── server.js         // Inicialização do servidor
+│   ├── app.js              # Config Express
+│   ├── server.js           # Inicialização
 │   ├── config/
-│   │   ├── db.js         // Conexão com PostgreSQL via Sequelize
-│   │   ├── env.js        // Carrega variáveis de ambiente (dotenv)
-│   │   └── swagger.js    // Configuração do Swagger
-│   ├── imports/          // (Opcional) Arquivo "barrel" para centralizar exports
-│   │   └── index.js
+│   │   ├── db.js           # Conexão PostgreSQL
+│   │   ├── env.js          # Variáveis ambiente
+│   │   └── swagger.js      # Config Swagger
 │   ├── middleware/
-│   │   ├── auth.js       // Middleware de autenticação JWT
-│   │   └── errorHandler.js  // Middleware para tratamento global de erros
-│   ├── models/           // Modelos do Sequelize
-│   │   ├── index.js      // Inicializa e agrega os modelos
-│   │   └── user.js       // Modelo "User"
-│   ├── modules/          // Módulos por domínio/feature
+│   │   ├── auth.js         # Autenticação JWT
+│   │   └── upload.js       # Upload imagens
+│   ├── models/             # Modelos Sequelize
+│   ├── modules/            # Módulos do sistema
 │   │   ├── auth/
-│   │   │   ├── auth.controller.js
-│   │   │   └── auth.routes.js
-│   │   │
-│   │   │
-│   │   │
-│   │   └── user/
-│   │       ├── user.controller.js
-│   │       └── user.routes.js
-│   └── utils/ // Funções auxiliares
-│           
-├── .env                  // Variáveis de ambiente (ex.: PG_URI, JWT_SECRET, PORT)
-├── .gitignore            // Arquivos/pastas a serem ignorados pelo Git
-└── package.json          // Dependências e scripts (start, dev, db:migrate, db:seed, etc.)
+│   │   ├── user/
+│   │   ├── reporte/
+│   │   ├── notification/
+│   │   ├── category/
+│   │   └── status/
+│   └── shared/
+        └── error-handler.js # Tratamento de erros
 ```
 
-### Principais Pastas e Arquivos
+## 🛠️ Instalação
 
-- **config/** (na raiz):  
-  - **config.json**: Configurações do banco de dados para o **Sequelize CLI**.
-- **migrations/**: Arquivos de migração do banco (por exemplo, criação da tabela `users`).
-- **seeders/**: Arquivos de seed (por exemplo, criação de um superusuário).
-- **src/app.js**: Configura a aplicação Express, aplica middlewares (CORS, JSON, etc.) e registra rotas dos módulos.
-- **src/server.js**: Inicializa o servidor na porta configurada em `.env` ou usa a 3000 como padrão.
-- **src/config/db.js**: Configuração e conexão com o PostgreSQL via Sequelize.
-- **src/config/env.js**: Carrega variáveis de ambiente usando **dotenv**.
-- **src/config/swagger.js**: Configuração do Swagger para documentar a API em `/api-docs`.
-- **src/models/**: Modelos do Sequelize e o arquivo `index.js` que faz o "bootstrapping" dos modelos.
-- **src/modules/**: Cada módulo (por exemplo, `auth`, `user`) contém seu próprio controller e rotas.
-- **.env**: Variáveis de ambiente (PORT, PG_URI, JWT_SECRET, etc.).
-- **package.json**: Lista de dependências, scripts de migração, seeds e execução do servidor.
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/black-box.git
+cd black-box
+```
+
+2. Instale as dependências:
+```bash
+npm install
+```
+
+3. Configure o arquivo `.env`:
+```env
+PORT=3000
+DB_HOST=localhost
+DB_USER=seu_usuario
+DB_PASS=sua_senha
+DB_NAME=black_box
+JWT_SECRET=seu_jwt_secret
+```
+
+4. Crie o banco de dados:
+```sql
+CREATE DATABASE black_box;
+```
+
+5. Execute as migrações:
+```bash
+npx sequelize-cli db:migrate
+```
+
+6. Execute os seeds:
+```bash
+npx sequelize-cli db:seed:all
+```
+
+## 🚦 Uso
+
+1. Inicie o servidor:
+```bash
+npm start
+```
+
+2. Acesse a documentação Swagger:
+```
+http://localhost:3000/api-docs
+```
+
+## 🏗️ Implementação de Padrões SOLID
+
+### 1. Single Responsibility Principle (SRP)
+Cada classe tem uma única responsabilidade:
+- **Controllers**: Gerenciam requisições HTTP
+- **Services**: Contêm lógica de negócio
+- **Models**: Representam entidades do banco
+
+### 2. Open/Closed Principle (OCP)
+- Módulos extensíveis sem modificação
+- Novas funcionalidades via herança/composição
+
+### 3. Liskov Substitution Principle (LSP)
+- Controllers e services substituíveis sem quebrar o sistema
+
+### 4. Interface Segregation Principle (ISP)
+- Interfaces específicas para cada funcionalidade
+
+### 5. Dependency Inversion Principle (DIP)
+- Injeção de dependências via construtores
+- Desacoplamento entre módulos
+
+### Outras Boas Práticas
+
+- **Modularização**: Cada domínio (ex: user, auth, reporte) possui sua própria pasta com controller, service e rotas.
+- **Tratamento Centralizado de Erros**: Um `ErrorHandler` centraliza o tratamento e resposta de erros.
+- **Validação e Autorização**: Middlewares garantem autenticação JWT e autorização por perfil.
+- **Documentação**: Todas as rotas são documentadas via Swagger.
+- **Padrão DTO**: Apenas os campos necessários são expostos nas respostas.
+- **Separação de camadas**: Controllers não acessam diretamente o banco, apenas via services.
+
+### Exemplo de Estrutura SOLID
+
+```
+src/
+  modules/
+    user/
+      user.controller.js   // Orquestra requisições HTTP
+      user.service.js      // Lógica de negócio do usuário
+      user.routes.js       // Define endpoints e middlewares
+    reporte/
+      reporte.controller.js
+      reporte.service.js
+      reporte.routes.js
+  shared/
+    error-handler.js       // Tratamento centralizado de erros
+  middleware/
+    auth.js               // Autenticação JWT
+    errorHandler.js       // Middleware global de erros
+```
+
+### Exemplo de Injeção de Dependência
+
+```js
+// user.controller.js
+class UserController {
+  constructor(userService, errorHandler) {
+    this.userService = userService;
+    this.errorHandler = errorHandler;
+  }
+  // ...
+}
+```
+```js
+// index.js do módulo
+const UserController = require('./user.controller');
+const UserService = require('./user.service');
+const ErrorHandler = require('../../shared/error-handler');
+const userController = new UserController(new UserService(), new ErrorHandler());
+module.exports = userController;
+```
 
 ---
 
-## Instalação e Configuração
+## 📦 Módulos Principais
 
-1. **Clonar o repositório**.
-2. **Instalar dependências**:
-```bash
-   npm install
-```
-3. **Configurar variáveis de ambiente** no arquivo `.env`, por exemplo:
- ```bash
-    PORT=3000
-    MONGO_URI=mongodb://localhost:27017/seu-banco
-    JWT_SECRET=sua_chave_secreta
-```
+### Auth
+- Login
+- Registro
+- Recuperação de senha
+- Refresh token
 
-4. **Criar banco de dados** e usuário no PostgreSQL, caso ainda não existam:
-```sql
-CREATE DATABASE black_box;
-CREATE USER admin WITH PASSWORD 'admin';
-GRANT ALL PRIVILEGES ON DATABASE black_box TO admin;
-```
+### User
+- CRUD de usuários
+- Perfil
+- Permissões
 
-5. **Scripts Importantes (package.json)**
+### Reporte
+- Criação de reportes
+- Upload de imagens
+- Categorização
+- Status
+- Avaliações
+- Interações
+- Comentários
 
-**npm start**
- ```bash
-    npm start
-```
-Executa node src/server.js, iniciando o servidor na porta definida em .env ou 3000.
+### Notification
+- Notificações em tempo real
+- Histórico
+- Preferências
 
-7. **Executando e Testando**
+## 🔐 Autenticação
 
-3. Inicie o servidor:
- ```bash
-    npm start
-```
-
-4. **Acesse a documentação Swagger em:
- ```bash
-    http://localhost:3000/api-docs
-```
-
-8. **Autenticação e Login**
-Endpoint de Login: **POST /api/auth/login**
-Envie no corpo da requisição:
- ```bash
+Use o endpoint `/api/auth/login`:
+```json
 {
-   "email": "admin@blackbox.com",
-   "senha": "admin"
+  "email": "admin@blackbox.com",
+  "password": "admin123"
 }
 ```
 
+## 🧪 Testes
+
+Execute os testes:
+```bash
+npm test
+```
+
+## 📝 Documentação
+
+A documentação completa está disponível via Swagger em `/api-docs`.
+
+## 🛣️ Principais Rotas
+
+### Auth
+- `POST /api/auth/login`
+- `POST /api/auth/register`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
+
+### User
+- `GET /api/users/profile`
+- `PUT /api/users/profile`
+- `DELETE /api/users/profile`
+
+### Reporte
+- `POST /api/reportes`
+- `GET /api/reportes`
+- `GET /api/reportes/my`
+- `POST /api/reportes/:id/avaliar`
+- `POST /api/reportes/:id/interagir`
+- `POST /api/reportes/:id/comentar`
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie sua branch (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 👥 Autores
+
+- **Eduardo Weber Maldaner** - *Trabalho inicial* - [@L0G1C06](https://github.com/L0G1C06)
+- **Henry Santurião Almeida** - *Trabalho inicial* - [@HenryFacens](https://github.com/HenryFacens)
+- **Eduardo Prestes** - *Trabalho inicial* - [@DJmesh](https://github.com/DJmesh)
+
+## 🙏 Agradecimentos
+
+- Time de desenvolvimento
+
 ---
 
-## Observações
-**Banco de Dados:** Certifique-se de que o PostgreSQL esteja rodando e que o arquivo .env aponte para as credenciais corretas (PG_URI).
-**JWT Secret:** Recomenda-se gerar uma chave segura e não versioná-la em repositórios públicos.
-
-## Licença
-Este projeto está sob a licença MIT.
+**Nota**: Substitua os placeholders (seu-usuario, seu_jwt_secret, etc.) com suas informações reais antes de publicar.
