@@ -9,7 +9,7 @@ const options = {
       description: 'Documentação da API com Swagger',
     },
     servers: [
-      { url: 'https://bblackbox-f3btf4c3g7fydhaf.westus-01.azurewebsites.net:3000' }
+      { url: 'https://bblackbox-f3btf4c3g7fydhaf.westus-01.azurewebsites.net' }
     ],
     components: {
       securitySchemes: {
