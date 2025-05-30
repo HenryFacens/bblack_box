@@ -189,4 +189,62 @@ router.post('/:reporteId/interagir', authorizeRoles('admin', 'user'), reporteCon
  */
 router.post('/:reporteId/comentario', authorizeRoles('admin', 'user'), reporteController.comentarioReporte.bind(reporteController));
 
+/**
+ * @swagger
+ * /api/reporte/top-idh:
+ *   get:
+ *     tags:
+ *       - Reporte
+ *     summary: Listar reportes de maior impacto no IDH
+ *     description: Retorna os reportes que mais contribuíram para o aumento do IDH da cidade.
+ *     parameters:
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: "Quantidade máxima de reportes a retornar (padrao: 10)"
+ *     responses:
+ *       200:
+ *         description: Lista de reportes de maior impacto no IDH
+ *       401:
+ *         description: Token JWT ausente ou inválido
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get(
+  '/top-idh',
+  authorizeRoles('admin', 'externo', 'user'),
+  reporteController.getTopReportesByIDH.bind(reporteController)
+);
+
+/**
+ * @swagger
+ * /api/reporte/top-colaboradores:
+ *   get:
+ *     tags:
+ *       - Reporte
+ *     summary: Listar cidadãos que mais colaboraram
+ *     description: Retorna os cidadãos que mais colaboraram com denúncias, para fins de premiação.
+ *     parameters:
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: "Quantidade máxima de cidadãos a retornar (padrao: 3)"
+ *     responses:
+ *       200:
+ *         description: Lista dos cidadãos que mais colaboraram
+ *       401:
+ *         description: Token JWT ausente ou inválido
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get(
+  '/top-colaboradores',
+  authorizeRoles('admin'),
+  reporteController.getTopColaboradores.bind(reporteController)
+);
+
 module.exports = router;

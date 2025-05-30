@@ -56,7 +56,11 @@ module.exports = (sequelize, DataTypes) => {
         userId: {
             type: DataTypes.INTEGER,
             allowNull: false
-        }
+        },
+        impactoIDH: {
+            type: DataTypes.FLOAT, // ou INTEGER, conforme sua necessidade
+            allowNull: true
+        },
     }, {
         tableName: 'reporte',
         timestamps: true
@@ -67,6 +71,8 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'reporteId',
             as: 'comentarios'
         });
+        Reporte.hasMany(models.InteracoesReporte, { foreignKey: 'reporteId' });
+        Reporte.hasMany(models.ComentarioReporte, { foreignKey: 'reporteId' });
         Reporte.belongsTo(models.User, {
             foreignKey: 'userId',
             as: 'usuario'

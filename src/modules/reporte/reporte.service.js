@@ -1,5 +1,6 @@
 const { Reporte, Categoria, Status, InteracoesReporte, ComentarioReporte } = require('../../models');
 const { moderarTexto } = require('../../services/aiService');
+const { Sequelize } = require('sequelize');
 const path = require('path');
 
 class ReporteService {
@@ -164,6 +165,40 @@ class ReporteService {
             userId,
             reporteId
         });
+    }
+
+    async getTopReportesByIDH(limit = 10) {
+        // Supondo que o modelo Reporte tenha um campo 'impactoIDH'
+        return await Reporte.findAll({
+            order: [['impactoIDH', 'DESC']],
+            limit,
+        include: [
+            { model: InteracoesReporte, attributes: ['tipo', 'userId'] },
+            { model: ComentarioReporte, attributes: ['comentario', 'userId'] }
+            ]
+        });
+    }
+
+    async getTopColaboradores(limit = 3) {
+        const { sequelize } = require('../../models');
+    
+        const [results] = await sequelize.query(`
+            SELECT 
+                u.id,
+                u.nome,
+                u.email,
+                COUNT(r.id) as "totalReportes"
+            FROM users u
+            LEFT JOIN reporte r ON r."userId" = u.id
+            GROUP BY u.id, u.nome, u.email
+            ORDER BY COUNT(r.id) DESC
+            LIMIT :limit
+        `, {
+            replacements: { limit },
+            type: sequelize.QueryTypes.SELECT
+        });
+    
+        return results;
     }
 }
 

@@ -92,6 +92,26 @@ class ReporteController {
             return this.errorHandler.handleError(error, res, 'Erro na criação de comentário');
         }
     }
+
+    async getTopReportesByIDH(req, res) {
+        try {
+            const limit = parseInt(req.query.limit) || 10;
+            const reportes = await this.reporteService.getTopReportesByIDH(limit);
+            return res.status(200).json({ data: reportes });
+      } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro ao buscar reportes de maior impacto no IDH');
+      }
+    }
+
+    async getTopColaboradores(req, res) {
+          try {
+            const limit = parseInt(req.query.limit) || 3;
+            const colaboradores = await this.reporteService.getTopColaboradores(limit);
+            return res.status(200).json({ data: colaboradores });
+          } catch (error) {
+            return this.errorHandler.handleError(error, res, 'Erro ao buscar colaboradores');
+          }
+        }
 }
 
 module.exports = ReporteController;

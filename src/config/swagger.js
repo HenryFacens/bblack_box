@@ -9,12 +9,13 @@ const options = {
       description: 'Documentação da API com Swagger',
     },
     servers: [
-      { url: 'https://bblackbox-f3btf4c3g7fydhaf.westus-01.azurewebsites.net' }
+      //{ url: 'https://bblackbox-f3btf4c3g7fydhaf.westus-01.azurewebsites.net' }
+      { url: 'http://localhost:3000' }
     ],
     components: {
       securitySchemes: {
         bearerAuth: {           
-          type: 'https',
+          type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',  
         },
