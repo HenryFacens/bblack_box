@@ -1,0 +1,1 @@
+psql --host=blackbox.postgres.database.azure.com --port=5432 --username=blackbox --dbname=postgres -f dump-black_box-202505301944.sql
