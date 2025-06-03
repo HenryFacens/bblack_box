@@ -2,17 +2,11 @@ const { User } = require('../../models');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
+const { verifyToken } = require('../../services/authService');
 
 exports.getProfile = async (req, res) => {
   try {
-    // Pegar o token do cabeçalho da requisição
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ message: 'Token não fornecido' });
-    }
-
-    // Verificar e decodificar o token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+    const decoded = verifyToken(req);
     const userId = decoded.id; // Pegamos o ID do usuário a partir do token
 
     // Buscar o usuário no banco de dados
@@ -32,14 +26,7 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    // Pegar o token do cabeçalho da requisição
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ message: 'Token não fornecido' });
-    }
-
-    // Verificar e decodificar o token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+    const decoded = verifyToken(req);
     const userId = decoded.id;
 
     const user = await User.findByPk(userId);
@@ -78,7 +65,7 @@ exports.forgotPassword = async (req, res) => {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
 
     // Link de reset
-    const resetLink = `https://localhost:3000/api/user/reset-password?token=${token}`;
+    const resetLink = `http://localhost:8081/reset-password?token=${token}`;
 
     // Enviar e-mail com link
     const transporter = nodemailer.createTransport({
@@ -105,34 +92,53 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   const { token, newPassword, confirmPassword } = req.body;
 
+  if (!token) {
+    return res.status(400).json({ 
+      error: 'Token não fornecido', 
+      details: 'Token de redefinição de senha é obrigatório' 
+    });
+  }
+
   if (newPassword !== confirmPassword) {
     return res.status(400).json({ message: 'As senhas não coincidem' });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Aqui está a correção principal: usar o token do body
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use sua chave secreta
     const user = await User.findByPk(decoded.id);
-    if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await user.update({ senha: hashedPassword });
 
     res.json({ message: 'Senha redefinida com sucesso' });
   } catch (error) {
-    res.status(400).json({ error: 'Token inválido ou expirado', details: error.message });
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({ 
+        error: 'Token expirado', 
+        details: 'O link de redefinição de senha expirou' 
+      });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ 
+        error: 'Token inválido', 
+        details: 'Token de redefinição de senha inválido' 
+      });
+    }
+    res.status(400).json({ 
+      error: 'Erro ao redefinir senha', 
+      details: error.message 
+    });
   }
 };
 
 exports.deleteProfile = async (req, res) => {
   try {
-    // Pegar o token do cabeçalho da requisição
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ message: 'Token não fornecido' });
-    }
-
-    // Verificar e decodificar o token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sua_chave_secreta');
+    const decoded = verifyToken(req);
     const userId = decoded.id;
 
     const user = await User.findByPk(userId);
