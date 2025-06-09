@@ -1,6 +1,7 @@
 const { Reporte, Categoria, Status, InteracoesReporte, ComentarioReporte } = require('../../models');
 const { moderarTexto } = require('../../services/aiService');
 const { Sequelize } = require('sequelize');
+const { sequelize } = require('../../models');
 const path = require('path');
 
 class ReporteService {
@@ -180,8 +181,6 @@ class ReporteService {
     }
 
     async getTopColaboradores(limit = 3) {
-        const { sequelize } = require('../../models');
-    
         const [results] = await sequelize.query(`
             SELECT 
                 u.id,
